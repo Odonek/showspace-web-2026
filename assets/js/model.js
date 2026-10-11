@@ -8,7 +8,8 @@
 //   krok 0 – statický 2D půdorys
 //   krok 1 – stěny se zvednou do 3D, kliknutím na místnost do ní kamera vletí
 //   krok 2 – kliknutím na dvě místa se změří vzdálenost
-//   krok 3 – kamera přiblíží obývací pokoj a ukáže informační body
+//   krok 3 – kamera přiblíží obývací pokoj, „vletí“ do něj a na stejném místě
+//            se objeví skutečná prohlídka z Giraffe360 (adresa je v index.html, data-src)
 import * as THREE from '../vendor/three.module.min.js';
 
 const stage = document.querySelector('.stage');
@@ -19,6 +20,11 @@ const planImg = view?.querySelector('.stage__fallback img');
 const beats = stage ? [...stage.querySelectorAll('.beat')] : [];
 const dots = stage ? [...stage.querySelectorAll('.stage__progress button')] : [];
 const resetBtn = stage?.querySelector('.stage__reset');
+const tourBox = view?.querySelector('.stage__tour');
+
+// kde na ose scrollu (0–1) začínají jednotlivé kroky a kam skáčou tečky průběhu
+const BEAT_AT = [0, 0.22, 0.45, 0.68];
+const DOT_TO = [0, 0.34, 0.57, 0.95];
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -300,17 +306,18 @@ function init() {
   const TAN = Math.tan(deg(15));
 
   function targets(p) {
-    const rise = smooth(0.08, 0.32, p);
-    const s2 = smooth(0.44, 0.56, p);
-    const s3 = smooth(0.74, 0.9, p);
+    const rise = smooth(0.06, 0.26, p);
+    const s2 = smooth(0.4, 0.5, p);
+    const s3 = smooth(0.68, 0.78, p);
+    const dive = smooth(0.79, 0.87, p);   // vlet do místnosti těsně před prohlídkou
     const narrow = camera.aspect < 1.2;
     const t = {
       rise,
       pol: mix(mix(0.001, deg(46), rise), deg(38), s2),
       az: mix(mix(0, deg(-26), rise), deg(16), s2) + s3 * deg(14),
       rad: mix(1, narrow ? 1.16 : 1.42, rise),
-      dim: s2 * (1 - smooth(0.7, 0.76, p)) * (measure.a ? 0 : 1),
-      spot: s3,
+      dim: s2 * (1 - smooth(0.62, 0.68, p)) * (measure.a ? 0 : 1),
+      spot: s3 * (1 - dive),
       tx: CENTER.x,
       tz: mix(CENTER.z, CENTER.z + 0.45, rise),
       focus: 0,
@@ -321,6 +328,7 @@ function init() {
       t.rad = ((focused.size * 2.3 + 9) / baseRadius) * (narrow ? 1.15 : 1);
       t.pol = deg(44);
       t.focus = autoFocus ? 0 : 1;
+      if (autoFocus) { t.rad *= mix(1, 0.3, dive); t.pol = mix(deg(44), deg(68), dive); }
     }
     return t;
   }
@@ -350,7 +358,7 @@ function init() {
   }
 
   function updateUi() {
-    if (hintEl) hintEl.textContent = focused && !autoFocus ? [focused.name, focused.area].filter(Boolean).join(', ') : HINTS[beat] || HINTS[0];
+    if (hintEl) hintEl.textContent = tourOn ? 'Skutečná prohlídka: byt 3+1, Svitavy' : focused && !autoFocus ? [focused.name, focused.area].filter(Boolean).join(', ') : HINTS[beat] || HINTS[0];
     if (resetBtn) {
       const show = (!!focused && !autoFocus) || (!!measure.a && beat === 2);
       resetBtn.hidden = !show;
@@ -364,11 +372,40 @@ function init() {
     const r = stage.getBoundingClientRect();
     const total = r.height - window.innerHeight;
     progress = total > 0 ? clamp01(-r.top / total) : 0;
-    const b = Math.min(beats.length - 1, Math.floor(progress * beats.length * 0.999));
+    let b = 0;
+    BEAT_AT.forEach((at, i) => { if (progress >= at) b = i; });
     beats.forEach((el, i) => el.classList.toggle('is-active', i === b));
     dots.forEach((d, i) => d.setAttribute('aria-current', String(i === b)));
     setBeat(b);
+    updateTour();
     needsFrame = true;
+  }
+
+  // Skutečná prohlídka: načte se s předstihem a na konci scrollu překryje model.
+  let tourFrame = null, tourOn = false;
+  function updateTour() {
+    if (!tourBox || reduceMotion) return;
+    if (!tourFrame && progress > 0.6) {
+      tourFrame = document.createElement('iframe');
+      tourFrame.src = tourBox.dataset.src;
+      tourFrame.title = tourBox.dataset.title || 'Virtuální prohlídka';
+      tourFrame.allow = 'fullscreen; vr; xr-spatial-tracking; gyroscope; accelerometer';
+      tourFrame.allowFullscreen = true;
+      tourFrame.tabIndex = -1;
+      tourBox.appendChild(tourFrame);
+    }
+    const a = smooth(0.85, 0.9, progress);
+    tourBox.style.opacity = a.toFixed(3);
+    // model pod prohlídkou zmizí, ať nevykukuje po stranách
+    canvas.style.opacity = (1 - a).toFixed(3);
+    const on = a > 0.98;
+    if (on !== tourOn) {
+      tourOn = on;
+      tourBox.classList.toggle('is-on', on);
+      stage.classList.toggle('is-touring', on);
+      if (tourFrame) tourFrame.tabIndex = on ? 0 : -1;
+      updateUi();
+    }
   }
 
   // ---- interakce ----
@@ -487,7 +524,7 @@ function init() {
   dots.forEach((d, i) => d.addEventListener('click', () => {
     const r = stage.getBoundingClientRect();
     const total = r.height - window.innerHeight;
-    window.scrollTo({ top: window.scrollY + r.top + total * ((i + 0.5) / beats.length), behavior: 'smooth' });
+    window.scrollTo({ top: window.scrollY + r.top + total * DOT_TO[i], behavior: 'smooth' });
   }));
 
   // ---- vykreslení ----
@@ -563,6 +600,7 @@ function init() {
   window.__showspaceModel = {
     project(x, z) { const r = canvas.getBoundingClientRect(); const q = new THREE.Vector3(x, 0, z).project(camera); return [r.left + (q.x * 0.5 + 0.5) * r.width, r.top + (-q.y * 0.5 + 0.5) * r.height]; },
     get beat() { return beat; },
+    get touring() { return tourOn; },
     get focused() { return focused?.name || null; },
     get measured() { return measure.fixed ? measureTag.el.textContent : null; },
   };

@@ -24,7 +24,7 @@
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 <link rel="preload" href="assets/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script>document.documentElement.classList.add('js')</script>
-<link rel="stylesheet" href="assets/css/styles.css?v=202610111852">
+<link rel="stylesheet" href="assets/css/styles.css?v=202610111903">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "ProfessionalService", "@id": "https://showspace.cz/#firma", "name": "ShowSpace", "description": "Technologický a mediální partner pro realitní makléře a kanceláře. 3D prohlídky, půdorysy, HDR fotografie, video z dronu a obsah na sociální sítě při jedné návštěvě.", "url": "https://showspace.cz/", "logo": "https://showspace.cz/assets/img/logo.png", "image": "https://showspace.cz/assets/img/sdileni.jpg", "telephone": "+420730167681", "email": "info@showspace.cz", "address": {"@type": "PostalAddress", "streetAddress": "Petrusova 2213/15", "postalCode": "568 02", "addressLocality": "Svitavy", "addressCountry": "CZ"}, "areaServed": {"@type": "Country", "name": "Česko"}, "sameAs": ["https://www.instagram.com/showspace.cz/", "https://www.facebook.com/people/Show-Space/61579327674807/"]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Můžu si to nejdřív vyzkoušet?", "acceptedAnswer": {"@type": "Answer", "text": "Ano. První nemovitost pro vás uděláme zdarma, abyste viděli výsledek na vlastní zakázce."}}, {"@type": "Question", "name": "Jak funguje předplatné?", "acceptedAnswer": {"@type": "Answer", "text": "Jako partner si zvolíte velikost Small, Medium nebo Large podle toho, kolik nemovitostí měsíčně nabíráte, a zavážete se na 12 měsíců. Každý měsíc platíte nejméně spodní hranici své velikosti, tedy 1, 3 nebo 6 nemovitostí."}}, {"@type": "Question", "name": "Jaký je rozdíl mezi SCAN a SKY?", "acceptedAnswer": {"@type": "Answer", "text": "SCAN obsahuje 3D prohlídku, 2D a 3D půdorys, HDR fotky, posty na sociální sítě a jednoduché video. SKY k tomu přidává video z dronu a gimbalu. Rozsah si můžete zvolit u každé nemovitosti zvlášť."}}, {"@type": "Question", "name": "Co když chci jen jednu nemovitost?", "acceptedAnswer": {"@type": "Answer", "text": "Jednorázová zakázka bez závazku stojí 4 300 Kč (SCAN) nebo 5 300 Kč (SKY). Dostanete podklady ke stažení a prohlídka je online 3 měsíce."}}, {"@type": "Question", "name": "Za jak dlouho podklady dostanu?", "acceptedAnswer": {"@type": "Answer", "text": "Do 10 pracovních dnů od dne natočení."}}, {"@type": "Question", "name": "Jak prohlídku dostanu do inzerátu?", "acceptedAnswer": {"@type": "Answer", "text": "Dostanete odkaz, který vložíte do inzerátu, na web kanceláře nebo ho pošlete zájemci zprávou. Nic se neinstaluje, otevře se v mobilu i na počítači."}}, {"@type": "Question", "name": "Skenujete i jiné prostory než byty a domy?", "acceptedAnswer": {"@type": "Answer", "text": "Ano, hotely, fitness, wellness, kavárny a další. Cenu stanovíme individuálně podle objektu a prohlídku umíme umístit i do Google Street View."}}]}</script>
 </head>
@@ -54,6 +54,9 @@
       <div class="stage__fallback"><img src="assets/img/byt-pudorys.webp" srcset="assets/img/byt-pudorys-800.webp 777w, assets/img/byt-pudorys.webp 1360w" sizes="(max-width: 860px) 90vw, 50vw" width="1360" height="1400" alt="2D půdorys bytu 3+1 ve Svitavách: dva pokoje, kuchyňský kout s jídelnou, obývací pokoj, koupelna a WC, celkem 63,7 m²" fetchpriority="high"></div>
       <canvas aria-label="Otočný 3D model bytu 3+1 ve Svitavách postavený podle půdorysu z naší zakázky."></canvas>
       <div class="stage__overlay"></div>
+      <!-- Prohlídka, do které úvod na konci scrollu „vletí“. Až budete mít přímý odkaz na prohlídku
+           (Giraffe360: Tour links), stačí ho vložit sem do data-src. -->
+      <div class="stage__tour" data-src="https://my.giraffe360.com/p/d85pdb1" data-title="Virtuální prohlídka bytu 3+1 ve Svitavách"></div>
     </div>
 
     <div class="stage__copy">
@@ -79,11 +82,11 @@
       </div>
       <div class="beat">
         <h2>A pak rovnou dovnitř</h2>
-        <p class="lead">V prohlídce se zájemce podívá do každé místnosti a najde u ní, co potřebuje vědět.</p>
-        <p class="try">Klikněte na bod v modelu</p>
+        <p class="lead">Scrollujte dál a ocitnete se přímo v prohlídce bytu. Pohybujete se kliknutím a tažením.</p>
+        <p class="try">Tohle je skutečná prohlídka</p>
         <div class="btn-row">
-          <a class="btn btn--accent" href="https://my.giraffe360.com/p/d85pdb1" target="_blank" rel="noopener" data-viewer="tour" data-title="Byt 3+1, Svitavy">Projít prohlídku</a>
-          <a class="btn btn--ghost" href="https://my.giraffe360.com/3dflp/ftac480" target="_blank" rel="noopener" data-viewer="tour" data-title="3D půdorys: byt 3+1, Svitavy">3D půdorys</a>
+          <a class="btn btn--accent" href="#co-dostanete">Pokračovat na web</a>
+          <a class="btn btn--ghost" href="https://my.giraffe360.com/p/d85pdb1" target="_blank" rel="noopener" data-viewer="tour" data-title="Byt 3+1, Svitavy">Na celou obrazovku</a>
         </div>
       </div>
     </div>
@@ -92,7 +95,7 @@
       <li><button type="button" aria-current="true" aria-label="2D půdorys"></button></li>
       <li><button type="button" aria-label="3D prostor"></button></li>
       <li><button type="button" aria-label="Rozměry"></button></li>
-      <li><button type="button" aria-label="Pohled do místnosti"></button></li>
+      <li><button type="button" aria-label="Prohlídka bytu"></button></li>
     </ol>
     <div class="stage__status">
       <button class="stage__reset btn btn--accent" type="button" hidden>Zpět na celý byt</button>
@@ -418,10 +421,10 @@
     </div>
   </div>
 </footer>
-<script type="module" src="assets/js/site.js?v=202610111852"></script>
+<script type="module" src="assets/js/site.js?v=202610111903"></script>
 <script type="module">
   // 3D model se načte až po vykreslení stránky, aby nezdržoval první zobrazení
-  const load3d = () => import("./assets/js/model.js?v=202610111852");
+  const load3d = () => import("./assets/js/model.js?v=202610111903");
   if ("requestIdleCallback" in window) requestIdleCallback(load3d, { timeout: 1500 }); else setTimeout(load3d, 300);
 </script>
 </body>

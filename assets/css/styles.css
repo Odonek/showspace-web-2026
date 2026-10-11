@@ -696,3 +696,19 @@ p { margin: 0; max-width: 62ch; text-wrap: pretty; }
 @media (max-width: 520px) { .who { grid-template-columns: 1fr; } }
 .contact { align-items: start; }
 .form { align-content: start; }
+
+/* =====================================================================
+   Konec úvodu: model „vletí“ do místnosti a překryje ho skutečná prohlídka
+   ===================================================================== */
+.stage { height: 560vh; }
+.stage__tour { position: absolute; inset: 14px 14px 14px 11%; z-index: 2; opacity: 0; pointer-events: none; background: var(--wall); border-radius: 20px; overflow: hidden; box-shadow: 0 24px 60px -30px rgba(20, 28, 43, 0.55); }
+.stage__tour iframe { width: 100%; height: 100%; border: 0; display: block; }
+.stage__tour.is-on { pointer-events: auto; }
+.stage.is-touring .stage__status { display: none; }
+.stage .beat:last-child { max-width: 27rem; }
+.stage.is-static .stage__tour { display: none; }
+@media (max-width: 860px) {
+  .stage { height: 520vh; }
+  .stage__tour { inset: 0; border-radius: 0; box-shadow: none; }
+  .stage .beat:last-child { max-width: none; }
+}
