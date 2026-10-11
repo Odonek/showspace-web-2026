@@ -11,7 +11,7 @@
 <meta property="og:title" content="Zásady ochrany osobních údajů – ShowSpace">
 <meta property="og:description" content="Jak ShowSpace zpracovává osobní údaje a cookies.">
 <meta property="og:type" content="website">
-<meta property="og:image" content="assets/img/byt-svitavy.webp">
+<meta property="og:image" content="assets/img/foto-loft-4.webp">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preload" href="assets/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script>document.documentElement.classList.add('js')</script>
@@ -26,7 +26,7 @@
     <nav class="nav" id="nav" aria-label="Hlavní">
       <a href="index.html">Pro makléře</a>
       <a href="prostory.html">Další prostory</a>
-      <a href="cenik.html">Ceník</a>
+      <a href="index.html#sluzby">Služby a ceny</a>
       <a href="tel:+420730167681">730 167 681</a>
       <a class="btn" href="#kontakt">Poptat prohlídku</a>
     </nav>
@@ -110,6 +110,15 @@
 <section class="section section--wall" id="kontakt">
   <div class="wrap contact">
     <div>
+      <svg class="eye" viewBox="0 0 120 120" aria-hidden="true">
+        <g class="eye__brackets" fill="none" stroke-width="9" stroke-linecap="butt">
+          <path d="M8 34V8h26M86 8h26v26M112 86v26H86M34 112H8V86"/>
+        </g>
+        <g class="eye__lid">
+          <path class="eye__white" d="M18 60c12-18 26-27 42-27s30 9 42 27c-12 18-26 27-42 27S30 78 18 60z"/>
+          <g class="eye__look"><circle class="eye__iris" cx="60" cy="60" r="17"/><circle class="eye__pupil" cx="60" cy="60" r="8"/><circle class="eye__glint" cx="65" cy="54" r="3"/></g>
+        </g>
+      </svg>
       <h2>Napište, co chcete naskenovat</h2>
       <p class="lead">Ozveme se do 24 hodin a domluvíme termín.</p>
       <ul class="contact__list">
@@ -135,6 +144,7 @@
             <option value="sport">Fitness, sportoviště, wellness</option>
             <option value="gastro">Kavárna, restaurace, bar</option>
             <option value="jine">Jiný prostor</option>
+            <option value="web">Web</option>
         </select>
       </label>
       <label class="full">Zpráva
@@ -147,6 +157,18 @@
     </form>
   </div>
 </section>
+<dialog class="viewer" aria-labelledby="viewer-title">
+  <div class="viewer__bar">
+    <h2 id="viewer-title"></h2>
+    <a class="viewer__out" href="#" target="_blank" rel="noopener">Otevřít v novém okně</a>
+    <button class="viewer__close" type="button">Zavřít</button>
+  </div>
+  <div class="viewer__body">
+    <button class="viewer__nav viewer__nav--prev" type="button" aria-label="Předchozí fotka" hidden>‹</button>
+    <div class="viewer__frame"></div>
+    <button class="viewer__nav viewer__nav--next" type="button" aria-label="Další fotka" hidden>›</button>
+  </div>
+</dialog>
 <footer class="site-footer">
   <div class="wrap">
     <p>© <span data-year>2026</span> ShowSpace, IČO 23631741, DIČ CZ23631741. Spisová značka C 55194, KS Hradec Králové.</p>

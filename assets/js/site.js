@@ -83,6 +83,7 @@ const groups = [
   ['.section__head', 1], ['.split > div', 2], ['.deliver > div', 2], ['.reasons > div', 3],
   ['.steps li', 3], ['.plan', 3], ['.refs > li', 3], ['.strip a', 4], ['.types > div', 2],
   ['.faq details', 1], ['.included li', 2], ['.contact > *', 2], ['.draft-note', 1],
+  ['.show', 1], ['.reel', 1], ['.reel-head .reel__nav', 1], ['.photos > li', 4],
 ];
 groups.forEach(([sel, perRow]) => {
   document.querySelectorAll(sel).forEach((el) => {
@@ -93,11 +94,12 @@ groups.forEach(([sel, perRow]) => {
   });
 });
 // .steps a .plan-figure se neskrývají celé, animuje se jen jejich část (kóta, půdorys)
-const revealTargets = [...document.querySelectorAll('[data-reveal], .steps, .plan-figure')];
+const revealTargets = [...document.querySelectorAll('[data-reveal], .steps')];
 if ('IntersectionObserver' in window && !calm) {
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => {
-      if (!e.isIntersecting) return;
+      // odkryj i prvky, které uživatel přeskočil (skok na kotvu, rychlý scroll)
+      if (!e.isIntersecting && e.boundingClientRect.top > 0) return;
       e.target.classList.add('is-in');
       io.unobserve(e.target);
     });
@@ -151,3 +153,155 @@ document.querySelectorAll('.faq').forEach((faq) => {
     faq.querySelectorAll('details[open]').forEach((d) => { if (d !== e.target) d.open = false; });
   }, true);
 });
+
+// ---------------------------------------------------------------------
+// Přepínač „Co dostanete“
+// ---------------------------------------------------------------------
+document.querySelectorAll('[data-show]').forEach((show) => {
+  const tabs = [...show.querySelectorAll('[role="tab"]')];
+  const panels = [...show.querySelectorAll('[role="tabpanel"]')];
+  const select = (i, focus = false) => {
+    tabs.forEach((t, k) => {
+      t.setAttribute('aria-selected', String(k === i));
+      t.tabIndex = k === i ? 0 : -1;
+    });
+    panels.forEach((p, k) => {
+      p.hidden = k !== i;
+      const video = p.querySelector('video');
+      if (!video) return;
+      if (k === i && video.hasAttribute('data-autoplay') && !calm) video.play().catch(() => {});
+      else video.pause();
+    });
+    if (focus) tabs[i].focus();
+  };
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => select(i));
+    t.addEventListener('keydown', (e) => {
+      const step = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+      if (!step) return;
+      e.preventDefault();
+      select((i + step + tabs.length) % tabs.length, true);
+    });
+  });
+  // smyčka se spustí, až je přepínač vidět
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([e], io) => {
+      if (!e.isIntersecting) return;
+      select(tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true'));
+      io.disconnect();
+    }, { threshold: 0.3 }).observe(show);
+  }
+});
+
+// ---------------------------------------------------------------------
+// Pás prohlídek: šipky a tažení myší
+// ---------------------------------------------------------------------
+document.querySelectorAll('.reel').forEach((reel) => {
+  const nav = [...document.querySelectorAll('[data-reel]')];
+  const step = () => (reel.querySelector('li')?.getBoundingClientRect().width || 400) + 24;
+  const sync = () => {
+    const max = reel.scrollWidth - reel.clientWidth - 4;
+    nav.forEach((b) => { b.disabled = b.dataset.reel === '-1' ? reel.scrollLeft <= 4 : reel.scrollLeft >= max; });
+  };
+  nav.forEach((b) => b.addEventListener('click', () => reel.scrollBy({ left: step() * Number(b.dataset.reel), behavior: calm ? 'auto' : 'smooth' })));
+  reel.addEventListener('scroll', sync, { passive: true });
+  sync();
+
+  let start = null;
+  reel.addEventListener('pointerdown', (e) => {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    start = { x: e.clientX, left: reel.scrollLeft, moved: false };
+  });
+  window.addEventListener('pointermove', (e) => {
+    if (!start) return;
+    const dx = e.clientX - start.x;
+    if (!start.moved && Math.abs(dx) > 6) { start.moved = true; reel.classList.add('is-dragging'); }
+    if (start.moved) reel.scrollLeft = start.left - dx;
+  });
+  window.addEventListener('pointerup', () => {
+    if (!start) return;
+    const moved = start.moved;
+    start = null;
+    if (moved) setTimeout(() => reel.classList.remove('is-dragging'), 0);
+  });
+  reel.addEventListener('dragstart', (e) => e.preventDefault());
+});
+
+// ---------------------------------------------------------------------
+// Prohlížeč: prohlídky (iframe) a fotky (s listováním)
+// ---------------------------------------------------------------------
+const viewer = document.querySelector('.viewer');
+if (viewer && typeof viewer.showModal === 'function') {
+  const frame = viewer.querySelector('.viewer__frame');
+  const title = viewer.querySelector('#viewer-title');
+  const out = viewer.querySelector('.viewer__out');
+  const prev = viewer.querySelector('.viewer__nav--prev');
+  const next = viewer.querySelector('.viewer__nav--next');
+  let photos = [], index = 0;
+
+  const showPhoto = (i) => {
+    index = (i + photos.length) % photos.length;
+    const p = photos[index];
+    title.textContent = p.dataset.title;
+    frame.innerHTML = '';
+    const im = new Image();
+    im.src = p.dataset.full;
+    im.alt = p.dataset.title;
+    frame.appendChild(im);
+  };
+  const open = (kind) => {
+    prev.hidden = next.hidden = kind !== 'photo';
+    out.hidden = kind !== 'tour';
+    viewer.showModal();
+  };
+
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-viewer]');
+    if (!el || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    if (el.closest('.reel.is-dragging')) return;
+    e.preventDefault();
+    if (el.dataset.viewer === 'tour') {
+      title.textContent = el.dataset.title;
+      out.href = el.href;
+      frame.innerHTML = '';
+      const ifr = document.createElement('iframe');
+      ifr.src = el.href;
+      ifr.title = `Virtuální prohlídka: ${el.dataset.title}`;
+      ifr.allow = 'fullscreen; xr-spatial-tracking; gyroscope; accelerometer';
+      ifr.allowFullscreen = true;
+      frame.appendChild(ifr);
+      open('tour');
+    } else {
+      photos = [...document.querySelectorAll('[data-viewer="photo"]')];
+      showPhoto(photos.indexOf(el));
+      open('photo');
+    }
+  });
+  prev.addEventListener('click', () => showPhoto(index - 1));
+  next.addEventListener('click', () => showPhoto(index + 1));
+  viewer.querySelector('.viewer__close').addEventListener('click', () => viewer.close());
+  viewer.addEventListener('click', (e) => { if (e.target === viewer) viewer.close(); });
+  viewer.addEventListener('keydown', (e) => {
+    if (prev.hidden) return;
+    if (e.key === 'ArrowLeft') showPhoto(index - 1);
+    if (e.key === 'ArrowRight') showPhoto(index + 1);
+  });
+  viewer.addEventListener('close', () => { frame.innerHTML = ''; });
+}
+
+// ---------------------------------------------------------------------
+// Oko z loga sleduje kurzor
+// ---------------------------------------------------------------------
+const eye = document.querySelector('.eye');
+if (eye && !calm) {
+  const look = eye.querySelector('.eye__look');
+  window.addEventListener('pointermove', (e) => {
+    const r = eye.getBoundingClientRect();
+    if (r.bottom < -200 || r.top > window.innerHeight + 200) return;
+    const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+    const d = Math.hypot(dx, dy) || 1;
+    const reach = Math.min(1, d / 260);
+    look.style.setProperty('--ex', `${((dx / d) * 15 * reach).toFixed(1)}px`);
+    look.style.setProperty('--ey', `${((dy / d) * 8 * reach).toFixed(1)}px`);
+  }, { passive: true });
+}

@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ShowSpace – virtuální prohlídky nemovitostí pro makléře</title>
-<meta name="description" content="Naskenujeme byt nebo dům a do týdne dodáme 3D prohlídku, půdorys s rozměry a fotky. Odkaz vložíte rovnou do inzerátu.">
+<title>ShowSpace – virtuální prohlídky pro realitní makléře</title>
+<meta name="description" content="Virtuální prohlídky bytů a domů pro makléře. Do týdne 3D prohlídka, půdorys s rozměry a fotky do inzerátu. Skenujeme i hotely, fitness a další prostory.">
 <!-- ZKUŠEBNÍ VERZE: před spuštěním na showspace.cz tento řádek smazat, jinak web Google nezobrazí -->
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#161d2b">
-<meta property="og:title" content="ShowSpace – virtuální prohlídky nemovitostí pro makléře">
-<meta property="og:description" content="Naskenujeme byt nebo dům a do týdne dodáme 3D prohlídku, půdorys s rozměry a fotky. Odkaz vložíte rovnou do inzerátu.">
+<meta property="og:title" content="ShowSpace – virtuální prohlídky pro realitní makléře">
+<meta property="og:description" content="Virtuální prohlídky bytů a domů pro makléře. Do týdne 3D prohlídka, půdorys s rozměry a fotky do inzerátu. Skenujeme i hotely, fitness a další prostory.">
 <meta property="og:type" content="website">
-<meta property="og:image" content="assets/img/byt-svitavy.webp">
+<meta property="og:image" content="assets/img/foto-loft-4.webp">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preload" href="assets/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script>document.documentElement.classList.add('js')</script>
@@ -26,7 +26,7 @@
     <nav class="nav" id="nav" aria-label="Hlavní">
       <a href="index.html" aria-current="page">Pro makléře</a>
       <a href="prostory.html">Další prostory</a>
-      <a href="cenik.html">Ceník</a>
+      <a href="index.html#sluzby">Služby a ceny</a>
       <a href="tel:+420730167681">730 167 681</a>
       <a class="btn" href="#kontakt">Poptat prohlídku</a>
     </nav>
@@ -48,22 +48,25 @@
         <p class="lead">Naskenujeme nemovitost a do týdne dodáme 3D prohlídku, půdorys s rozměry a fotky. Odkaz vložíte rovnou do inzerátu.</p>
         <div class="btn-row">
           <a class="btn" href="#kontakt">Poptat prohlídku</a>
-          <a class="btn btn--ghost" href="#ukazka">Projít hotovou zakázku</a>
+          <a class="btn btn--ghost" href="#sluzby">Služby a ceny</a>
         </div>
+        <p class="also">Děláme i ostatní prostory: hotely, fitness, wellness a další. <a href="prostory.html">Podívejte se na ně</a></p>
+        <p class="scroll-cue" aria-hidden="true">Scrollujte a sledujte půdorys</p>
       </div>
       <div class="beat">
         <h2>Z půdorysu je prostor</h2>
-        <p class="lead">Přijedeme se skenerem a projdeme všechny místnosti. Zájemce pak bytem prochází sám, v mobilu i na počítači, kdykoli se mu to hodí.</p>
-        <p class="note">Model můžete otáčet tažením.</p>
+        <p class="lead">Zájemce bytem prochází sám, kdykoli se mu to hodí.</p>
+        <p class="try">Klikněte na místnost v modelu</p>
       </div>
       <div class="beat">
         <h2>Rozměry bez metru</h2>
-        <p class="lead">Ke každé nemovitosti dostanete 2D půdorys z LiDARu s přesností 98 %. Vzdálenosti si zájemce změří přímo v prohlídce.</p>
+        <p class="lead">Vejde se tam skříň? Zájemce si to změří sám.</p>
+        <p class="try">Klikněte na dvě místa v modelu</p>
       </div>
       <div class="beat">
         <h2>Odpovědi přímo v místnosti</h2>
-        <p class="lead">Do prohlídky vložíme informační body s tím, na co se zájemci ptají nejčastěji. Zkuste kliknout na některý bod v modelu.</p>
-        <div class="btn-row"><a class="btn" href="#ukazka">Projít hotovou zakázku</a></div>
+        <p class="lead">Do prohlídky vložíme, na co se zájemci ptají nejčastěji.</p>
+        <p class="try">Klikněte na bod v modelu</p>
       </div>
     </div>
 
@@ -73,7 +76,10 @@
       <li><button type="button" aria-label="Rozměry"></button></li>
       <li><button type="button" aria-label="Informační body"></button></li>
     </ol>
-    <p class="stage__hint">Ilustrační model bytu 3+kk, 88 m²</p>
+    <div class="stage__status">
+      <button class="stage__reset btn btn--ghost" type="button" hidden>Zpět na celý byt</button>
+      <p class="stage__hint">Ilustrační model bytu 3+kk, 88 m²</p>
+    </div>
   </div>
 </section>
 
@@ -97,9 +103,8 @@
       <p class="note tour__caption">Byt 3+1 k pronájmu, Svitavy. Prohlídka se načte až po kliknutí.</p>
     </div>
     <div>
-      <h2>Takhle to vidí zájemce</h2>
-      <p class="lead">Skutečná zakázka, žádná vizualizace. Stejný odkaz dáte do inzerátu, na web kanceláře nebo ho pošlete majiteli.</p>
-      <p><a class="textlink" href="https://my.giraffe360.com/p/d85pdb1" target="_blank" rel="noopener">Otevřít prohlídku na celou obrazovku</a></p>
+      <h2>A takhle vypadá doopravdy</h2>
+      <p class="lead">Skutečná zakázka. Stejný odkaz dáte do inzerátu, na web kanceláře nebo ho pošlete majiteli.</p>
     </div>
   </div>
 </section>
@@ -110,62 +115,31 @@
       <h2>Co ke každé nemovitosti dostanete</h2>
       <p class="lead">Jedna návštěva na místě, všechny podklady pro inzerát.</p>
     </div>
-    <figure class="plan-figure">
-      <img src="assets/img/pudorys.webp" srcset="assets/img/pudorys-800.webp 800w, assets/img/pudorys.webp 1600w" sizes="(max-width: 1180px) 100vw, 1100px" width="1600" height="547" alt="2D půdorys s plochou místnosti vytvořený ze skenu" loading="lazy" decoding="async">
-      <figcaption class="note">Ukázka půdorysu z naší zakázky: Houseboat, Praha.</figcaption>
-    </figure>
-    <dl class="deliver">
-      <div><dt>3D prohlídka</dt><dd>Zájemce prochází byt místnost po místnosti. Otevře ji odkazem, nic neinstaluje.</dd></div>
-      <div><dt>2D půdorys</dt><dd>Z LiDARu, s přesností 98 %. Hodí se do inzerátu i jako podklad pro majitele.</dd></div>
-      <div><dt>Měření v prohlídce</dt><dd>Vejde se tam skříň? Zájemce si vzdálenost změří sám a nemusí vám kvůli tomu volat.</dd></div>
-      <div><dt>Fotografie</dt><dd>Ve vysokém rozlišení, s realistickými barvami. Připravené pro realitní servery, web i tisk.</dd></div>
-      <div><dt>Informační body</dt><dd>Krátké popisky přímo v místnostech: vybavení, rekonstrukce, co v ceně zůstává.</dd></div>
-      <div><dt>Stránka nemovitosti</dt><dd>Jednoduchá stránka s prohlídkou a fotkami, kterou můžete sdílet samostatně.</dd></div>
-      <div><dt>Video na přání</dt><dd>Z naskenovaných dat sestavíme video prohlídku s AI komentářem. Bez dalšího natáčení.</dd></div>
-      <div><dt>Bez měsíčních poplatků</dt><dd>Za hosting prohlídky neplatíte nic navíc.</dd></div>
-    </dl>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <div class="section__head"><h2>Proč s prohlídkou pracovat</h2></div>
-    <div class="reasons">
-      <div>
-        <h3>Na prohlídky chodí lidé, kteří byt už znají</h3>
-        <p>Kdo si nemovitost prošel online a přesto přijde, ví, do čeho jde. Nezabíjíte čas s těmi, komu nesedí dispozice.</p>
+    <div class="show" data-show>
+      <div class="show__tabs" role="tablist" aria-label="Co dostanete" aria-orientation="vertical">
+      <button class="show__tab" type="button" role="tab" id="show-tab-0" aria-controls="show-panel-0" aria-selected="true"><strong>3D prohlídka</strong><span>Zájemce prochází místnost po místnosti. Otevře ji odkazem, nic neinstaluje.</span></button>
+      <button class="show__tab" type="button" role="tab" id="show-tab-1" aria-controls="show-panel-1" aria-selected="false" tabindex="-1"><strong>Půdorys s rozměry</strong><span>Z LiDARu, s přesností 98 %. Vzdálenosti jdou měřit i přímo v prohlídce.</span></button>
+      <button class="show__tab" type="button" role="tab" id="show-tab-2" aria-controls="show-panel-2" aria-selected="false" tabindex="-1"><strong>Fotografie</strong><span>Ve vysokém rozlišení, připravené pro realitní servery, web i tisk.</span></button>
+      <button class="show__tab" type="button" role="tab" id="show-tab-3" aria-controls="show-panel-3" aria-selected="false" tabindex="-1"><strong>Video s komentářem</strong><span>Na přání. Sestavíme ho z naskenovaných dat a AI komentář prostor představí.</span></button>
       </div>
-      <div>
-        <h3>Zájemci z jiného města</h3>
-        <p>Kdo se stěhuje za prací nebo kupuje na investici, nemusí kvůli první prohlídce cestovat přes půl republiky.</p>
-      </div>
-      <div>
-        <h3>Argument při náběru</h3>
-        <p>Majiteli ukážete, jak bude jeho nemovitost v nabídce vypadat. Je to služba, kterou vidí na první pohled.</p>
+      <div class="show__stage finder">
+        <div class="show__panels">
+        <div class="show__panel" role="tabpanel" id="show-panel-0" aria-labelledby="show-tab-0"><video muted loop playsinline preload="none" poster="assets/video/prohlidka.webp" data-autoplay><source src="assets/video/prohlidka.mp4" type="video/mp4"></video></div>
+        <div class="show__panel" role="tabpanel" id="show-panel-1" aria-labelledby="show-tab-1" hidden><div class="show__plan"><img src="assets/img/pudorys.webp" srcset="assets/img/pudorys-800.webp 800w, assets/img/pudorys.webp 1600w" sizes="(max-width: 860px) 100vw, 60vw" width="1600" height="547" alt="2D půdorys houseboatu s plochou místnosti" loading="lazy" decoding="async"></div></div>
+        <div class="show__panel" role="tabpanel" id="show-panel-2" aria-labelledby="show-tab-2" hidden><img src="assets/img/foto-loft-4.webp" srcset="assets/img/foto-loft-4-800.webp 800w, assets/img/foto-loft-4.webp 1600w" sizes="(max-width: 860px) 100vw, 60vw" width="1600" height="1200" alt="Obývací prostor s koženou pohovkou" loading="lazy" decoding="async"></div>
+        <div class="show__panel" role="tabpanel" id="show-panel-3" aria-labelledby="show-tab-3" hidden><video controls playsinline preload="none" poster="assets/video/video-komentar.webp"><source src="assets/video/video-komentar.mp4" type="video/mp4"></video></div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="section" id="postup">
+<section class="section" id="sluzby">
   <div class="wrap">
-    <div class="section__head"><h2>Jak to probíhá</h2></div>
-    <div class="steps">
-      <div class="steps__dim dim" aria-hidden="true">do týdne</div>
-      <ol>
-      <li><h3>Domluvíme termín</h3><p>Napíšete nám adresu a velikost nemovitosti. Ozveme se do 24 hodin.</p></li>
-      <li><h3>Naskenujeme na místě</h3><p>Projdeme všechny místnosti se skenerem a pořídíme fotografie.</p></li>
-      <li><h3>Pošleme odkaz a podklady</h3><p>Do týdne od skenování máte prohlídku, půdorys i fotky připravené ke vložení do inzerátu.</p></li>
-      </ol>
-    </div>
-  </div>
-</section>
-
-<section class="section" id="balicky">
-  <div class="wrap">
+    <p class="draft-note"><strong>Návrh k doplnění.</strong> Ceny a rozdělení balíčků jsou zatím jen předloha. Tuto poznámku před spuštěním smažeme.</p>
     <div class="section__head">
-      <h2>Balíčky pro makléře</h2>
-      <p class="lead">Cena podle velikosti nemovitosti. V každém balíčku je prohlídka, půdorys i fotky.</p>
+      <h2>Služby a ceny</h2>
+      <p class="lead">Platíte jednou za nemovitost. V každém balíčku je prohlídka, půdorys i fotky.</p>
     </div>
     <div class="plans">
   <article class="plan">
@@ -190,23 +164,145 @@
     <a class="btn btn--ghost" href="#kontakt" data-prefill="Dům" data-prostor="byt">Poptat tento balíček</a>
   </article>
 </div>
-    <p style="margin-top:1.5rem"><a class="textlink" href="cenik.html">Celý ceník včetně provozoven</a></p>
+    <ul class="facts">
+      <li>Dodání do týdne</li>
+      <li>Bez měsíčních poplatků za hosting</li>
+      <li>Informační body v místnostech</li>
+      <li>Video s AI komentářem na přání</li>
+    </ul>
+    <p style="margin-top:1.5rem">Skenujete víc nemovitostí měsíčně? <a class="textlink" href="#kontakt">Napište nám</a>, domluvíme cenu podle počtu.</p>
   </div>
 </section>
 
-<section class="section section--room">
+<section class="section section--mist" id="proc">
+  <div class="wrap">
+    <div class="section__head"><h2>Proč s prohlídkou pracovat</h2></div>
+    <div class="reasons">
+      <div>
+        <h3>Na prohlídky chodí lidé, kteří byt už znají</h3>
+        <p>Kdo si nemovitost prošel online a přesto přijde, ví, do čeho jde.</p>
+      </div>
+      <div>
+        <h3>Zájemci z jiného města</h3>
+        <p>Kvůli první prohlídce nemusí cestovat přes půl republiky.</p>
+      </div>
+      <div>
+        <h3>Argument při náběru</h3>
+        <p>Majiteli ukážete, jak bude jeho nemovitost v nabídce vypadat.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="postup">
+  <div class="wrap">
+    <div class="section__head"><h2>Jak to probíhá</h2></div>
+    <div class="steps">
+      <div class="steps__dim dim" aria-hidden="true">do týdne</div>
+      <ol>
+      <li><h3>Domluvíme termín</h3><p>Napíšete nám adresu a velikost nemovitosti. Ozveme se do 24 hodin.</p></li>
+      <li><h3>Naskenujeme na místě</h3><p>Projdeme všechny místnosti se skenerem a pořídíme fotografie.</p></li>
+      <li><h3>Pošleme odkaz a podklady</h3><p>Do týdne máte prohlídku, půdorys i fotky připravené do inzerátu.</p></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="section section--room" id="dalsi">
+  <div class="wrap reel-head">
+    <div class="section__head">
+      <h2>Skenujeme i další prostory</h2>
+      <p class="lead">Hotel, fitness, bazén i houseboat. Prohlídka se otevře přímo tady.</p>
+    </div>
+    <div class="reel__nav">
+      <button type="button" data-reel="-1" aria-label="Předchozí prohlídky">‹</button>
+      <button type="button" data-reel="1" aria-label="Další prohlídky">›</button>
+    </div>
+  </div>
+  <ul class="reel" tabindex="0" aria-label="Vybrané prohlídky">
+        <li><a class="ref" href="https://tour.giraffe360.com/houseboat-prague-vltava/" target="_blank" rel="noopener" data-viewer="tour" data-title="Houseboat, Praha">
+          <div class="finder"><img src="assets/img/foto-houseboat-5.webp" srcset="assets/img/foto-houseboat-5-800.webp 800w, assets/img/foto-houseboat-5.webp 1600w" sizes="(max-width: 700px) 80vw, 420px" width="1600" height="1200" alt="Terasa houseboatu s výhledem na Vltavu" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Houseboat</h3>
+            <p>Praha, Ubytování</p>
+            <span class="ref__open">Projít prohlídku</span>
+          </div>
+        </a></li>
+        <li><a class="ref" href="https://tour.giraffe360.com/goldenfitness-ceskatrebova/" target="_blank" rel="noopener" data-viewer="tour" data-title="Golden Fitness, Česká Třebová">
+          <div class="finder"><img src="assets/img/golden-fitness-ceska-trebova.webp" srcset="assets/img/golden-fitness-ceska-trebova-800.webp 800w, assets/img/golden-fitness-ceska-trebova.webp 1600w" sizes="(max-width: 700px) 80vw, 420px" width="1600" height="1200" alt="Posilovna s činkami a schodištěm" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Golden Fitness</h3>
+            <p>Česká Třebová, Fitness a sport</p>
+            <span class="ref__open">Projít prohlídku</span>
+          </div>
+        </a></li>
+        <li><a class="ref" href="https://my.giraffe360.com/p/w8d850p" target="_blank" rel="noopener" data-viewer="tour" data-title="Forea – wellness, Lanškroun">
+          <div class="finder"><img src="assets/img/forea-wellness.webp" srcset="assets/img/forea-wellness-800.webp 800w, assets/img/forea-wellness.webp 1600w" sizes="(max-width: 700px) 80vw, 420px" width="1600" height="1200" alt="Wellness se saunami a ochlazovacím bazénkem" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Forea – wellness</h3>
+            <p>Lanškroun, Wellness a bazény</p>
+            <span class="ref__open">Projít prohlídku</span>
+          </div>
+        </a></li>
+        <li><a class="ref" href="https://tour.giraffe360.com/krytyplaveckybazensvitavy/" target="_blank" rel="noopener" data-viewer="tour" data-title="Krytý plavecký bazén, Svitavy">
+          <div class="finder"><img src="assets/img/foto-bazen.webp" srcset="assets/img/foto-bazen-800.webp 800w, assets/img/foto-bazen.webp 1600w" sizes="(max-width: 700px) 80vw, 420px" width="1600" height="1200" alt="Plavecký bazén se startovními bloky" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Krytý plavecký bazén</h3>
+            <p>Svitavy, Wellness a bazény</p>
+            <span class="ref__open">Projít prohlídku</span>
+          </div>
+        </a></li>
+        <li><a class="ref" href="https://my.giraffe360.com/p/9a43jc2" target="_blank" rel="noopener" data-viewer="tour" data-title="Forea – hotel, Lanškroun">
+          <div class="finder"><img src="assets/img/forea-hotel.webp" srcset="assets/img/forea-hotel-800.webp 800w, assets/img/forea-hotel.webp 1600w" sizes="(max-width: 700px) 80vw, 420px" width="1600" height="1200" alt="Hotelový pokoj s manželskou postelí" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Forea – hotel</h3>
+            <p>Lanškroun, Ubytování</p>
+            <span class="ref__open">Projít prohlídku</span>
+          </div>
+        </a></li>
+        <li><a class="ref" href="https://my.giraffe360.com/p/d85pdb1" target="_blank" rel="noopener" data-viewer="tour" data-title="Byt 3+1 k pronájmu, Svitavy">
+          <div class="finder"><img src="assets/img/byt-svitavy.webp" srcset="assets/img/byt-svitavy-800.webp 800w, assets/img/byt-svitavy.webp 1600w" sizes="(max-width: 700px) 80vw, 420px" width="1600" height="1200" alt="Prázdný pokoj bytu s výhledem do zahrady" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Byt 3+1 k pronájmu</h3>
+            <p>Svitavy, Nemovitost</p>
+            <span class="ref__open">Projít prohlídku</span>
+          </div>
+        </a></li>
+        <li class="reel__more"><a class="btn" href="prostory.html">Všechny další prostory</a></li>
+  </ul>
+</section>
+
+<section class="section" id="weby">
   <div class="wrap">
     <div class="section__head">
-      <h2>Skenujeme i hotely, fitness a kavárny</h2>
-      <p class="lead">Stejnou technikou jsme zpracovali hotel, wellness, sportcentrum, dvě fitness centra i krytý bazén.</p>
+      <h2>Děláme i weby</h2>
+      <p class="lead">Od jednostránkové prezentace po vícestránkový web, třeba s prohlídkou přímo na úvodní stránce.</p>
     </div>
-    <div class="strip">
-      <a href="prostory.html?typ=ubytovani"><img src="assets/img/forea-hotel.webp" srcset="assets/img/forea-hotel-800.webp 800w, assets/img/forea-hotel.webp 1600w" sizes="(max-width: 700px) 50vw, 25vw" width="1600" height="1200" alt="Hotelový pokoj, Forea Lanškroun" loading="lazy" decoding="async"><span>Ubytování</span></a>
-      <a href="prostory.html?typ=fitness"><img src="assets/img/golden-fitness-ceska-trebova.webp" srcset="assets/img/golden-fitness-ceska-trebova-800.webp 800w, assets/img/golden-fitness-ceska-trebova.webp 1600w" sizes="(max-width: 700px) 50vw, 25vw" width="1600" height="1200" alt="Posilovna Golden Fitness v České Třebové" loading="lazy" decoding="async"><span>Fitness a sport</span></a>
-      <a href="prostory.html?typ=wellness"><img src="assets/img/forea-wellness.webp" srcset="assets/img/forea-wellness-800.webp 800w, assets/img/forea-wellness.webp 1600w" sizes="(max-width: 700px) 50vw, 25vw" width="1600" height="1200" alt="Wellness Forea v Lanškrouně" loading="lazy" decoding="async"><span>Wellness a bazény</span></a>
-      <a href="prostory.html?typ=gastro"><img src="assets/img/forea-cafe.webp" srcset="assets/img/forea-cafe-800.webp 800w, assets/img/forea-cafe.webp 1600w" sizes="(max-width: 700px) 50vw, 25vw" width="1600" height="1200" alt="Kavárna a bistro Forea v Lanškrouně" loading="lazy" decoding="async"><span>Gastro</span></a>
+    <div class="web-grid">
+      <ul class="included included--one">
+        <li>Návrh a texty na míru</li>
+        <li>Rychlé načítání a zobrazení na mobilu</li>
+        <li>Kontaktní formulář a napojení na vaši doménu</li>
+        <li>Příprava na měření návštěvnosti a reklamní kampaně</li>
+        <li>Zabudování virtuální prohlídky a galerie</li>
+      </ul>
+      <div class="plans">
+  <article class="plan">
+    <h3>Jednostránkový web</h3>
+    <p class="plan__size">Prezentace na jedné stránce</p>
+    <p class="plan__price">X XXX Kč<small>cenu doplníme</small></p>
+    <ul><li>Úvod, služby, reference, kontakt</li><li>Poptávkový formulář</li><li>Zobrazení na mobilu</li></ul>
+    <a class="btn btn--ghost" href="#kontakt" data-prefill="Jednostránkový web" data-prostor="web">Poptat tento balíček</a>
+  </article>
+  <article class="plan">
+    <h3>Vícestránkový web</h3>
+    <p class="plan__size">Kompletní prezentace firmy</p>
+    <p class="plan__price">X XXX Kč<small>cenu doplníme</small></p>
+    <ul><li>Samostatné stránky služeb</li><li>Galerie a reference</li><li>Zabudovaná virtuální prohlídka</li></ul>
+    <a class="btn btn--ghost" href="#kontakt" data-prefill="Vícestránkový web" data-prostor="web">Poptat tento balíček</a>
+  </article>
+</div>
     </div>
-    <p style="margin-top:1.75rem"><a class="btn btn--ghost" href="prostory.html">Všechny hotové prohlídky</a></p>
   </div>
 </section>
 
@@ -226,7 +322,7 @@
 
 <section class="section" id="o-nas">
   <div class="wrap split split--flip">
-    <div class="team-photo"><img src="assets/img/tym.webp" srcset="assets/img/tym-800.webp 800w, assets/img/tym.webp 1600w" sizes="(max-width: 860px) 100vw, 50vw" width="1600" height="1600" alt="Čtyři členové týmu ShowSpace se skenerem na stativu" loading="lazy" decoding="async"></div>
+    <div class="team-photo finder" data-tilt><img src="assets/img/tym.webp" srcset="assets/img/tym-800.webp 800w, assets/img/tym.webp 1600w" sizes="(max-width: 860px) 100vw, 50vw" width="1600" height="1600" alt="Čtyři členové týmu ShowSpace se skenerem na stativu" loading="lazy" decoding="async"></div>
     <div>
       <h2>Kdo za ShowSpace stojí</h2>
       <p class="lead">Jsme parta vysokoškoláků a nadšenců do moderních technologií. Baví nás ukazovat prostory v co nejlepším světle.</p>
@@ -239,6 +335,15 @@
 <section class="section section--wall" id="kontakt">
   <div class="wrap contact">
     <div>
+      <svg class="eye" viewBox="0 0 120 120" aria-hidden="true">
+        <g class="eye__brackets" fill="none" stroke-width="9" stroke-linecap="butt">
+          <path d="M8 34V8h26M86 8h26v26M112 86v26H86M34 112H8V86"/>
+        </g>
+        <g class="eye__lid">
+          <path class="eye__white" d="M18 60c12-18 26-27 42-27s30 9 42 27c-12 18-26 27-42 27S30 78 18 60z"/>
+          <g class="eye__look"><circle class="eye__iris" cx="60" cy="60" r="17"/><circle class="eye__pupil" cx="60" cy="60" r="8"/><circle class="eye__glint" cx="65" cy="54" r="3"/></g>
+        </g>
+      </svg>
       <h2>Napište, co chcete naskenovat</h2>
       <p class="lead">Ozveme se do 24 hodin a domluvíme termín.</p>
       <ul class="contact__list">
@@ -264,6 +369,7 @@
             <option value="sport">Fitness, sportoviště, wellness</option>
             <option value="gastro">Kavárna, restaurace, bar</option>
             <option value="jine">Jiný prostor</option>
+            <option value="web">Web</option>
         </select>
       </label>
       <label class="full">Zpráva
@@ -276,6 +382,18 @@
     </form>
   </div>
 </section>
+<dialog class="viewer" aria-labelledby="viewer-title">
+  <div class="viewer__bar">
+    <h2 id="viewer-title"></h2>
+    <a class="viewer__out" href="#" target="_blank" rel="noopener">Otevřít v novém okně</a>
+    <button class="viewer__close" type="button">Zavřít</button>
+  </div>
+  <div class="viewer__body">
+    <button class="viewer__nav viewer__nav--prev" type="button" aria-label="Předchozí fotka" hidden>‹</button>
+    <div class="viewer__frame"></div>
+    <button class="viewer__nav viewer__nav--next" type="button" aria-label="Další fotka" hidden>›</button>
+  </div>
+</dialog>
 <footer class="site-footer">
   <div class="wrap">
     <p>© <span data-year>2026</span> ShowSpace, IČO 23631741, DIČ CZ23631741. Spisová značka C 55194, KS Hradec Králové.</p>
