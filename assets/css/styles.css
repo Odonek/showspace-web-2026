@@ -21,19 +21,19 @@
 }
 
 :root {
-  --wall: #18212f;      /* tmavá: stěny v půdorysu, hlavní text, tmavé sekce */
+  --wall: #18212f;      /* text a jediná tmavá plocha (kontakt, patička) */
   --slate: #415a77;     /* modrá z loga */
   --slate-deep: #2f435a;
-  --accent: #eae151;    /* žlutá ze stávajícího webu */
+  --accent: #eae151;    /* žlutá ze stávajícího webu: tlačítka a zvýraznění */
   --accent-soft: #fbf7c6;
-  --room: #f8e6d4;      /* podlaha v půdorysu */
+  --room: #fdebd9;      /* podlaha v půdorysu */
   --room-deep: #efd3b8;
   --paper: #ffffff;
   --ivory: #fffbef;     /* podklad stránky ze stávajícího webu */
-  --mist: #f4efdd;
-  --line: #ddd6c2;
+  --mist: #f6f1e1;
+  --line: #e0d9c5;
   --muted: #56647a;
-  --on-dark: #d6dee8;   /* doplňkový text na tmavém */
+  --on-dark: #d6dee8;
 
   --font: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   --header-h: 68px;
@@ -655,16 +655,19 @@ a.finder:hover::before, a.finder:focus-visible::before, .finder.is-live::before 
 }
 
 /* =====================================================================
-   Barvy: tmavý úvod, žlutý akcent a slonová kost ze stávajícího webu
+   Barvy: světlý klidný podklad, žlutá jako jediný akcent, tmavý jen kontakt
    ===================================================================== */
 body { background: var(--ivory); }
 .site-header { background: var(--ivory); }
-.read-progress { background: var(--slate); }
+.read-progress { background: var(--accent); height: 4px; }
+.section--room { background: var(--paper); }
+.page-hero { background: var(--mist); }
 
 /* tlačítka */
 .btn:hover { background: var(--accent); border-color: var(--accent); color: var(--wall); }
+.btn--accent { background: var(--accent); border-color: var(--accent); color: var(--wall); }
+.btn--accent:hover { background: var(--wall); border-color: var(--wall); color: var(--paper); }
 .btn--ghost:hover { background: var(--wall); border-color: var(--wall); color: var(--paper); }
-.btn--light:hover { background: var(--accent); border-color: var(--accent); color: var(--wall); }
 .nav .btn { background: var(--accent); border-color: var(--accent); color: var(--wall); }
 .nav .btn:hover { background: var(--wall); border-color: var(--wall); color: var(--paper); }
 .filters button:hover { background: var(--accent); }
@@ -672,100 +675,74 @@ body { background: var(--ivory); }
 .reel__nav button:hover { background: var(--accent); border-color: var(--accent); color: var(--wall); }
 .plan:hover { background: var(--accent-soft); }
 .draft-note { background: var(--accent-soft); border-left-color: var(--wall); }
-.textlink:hover { color: var(--slate); }
 
-/* tmavé plochy: úvodní scéna, úvody podstránek, modrý pás */
-.stage { background-color: var(--wall); background-image: linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px); color: var(--paper); }
-.page-hero { background: var(--slate); color: var(--paper); }
-.section--room { background: var(--slate); color: var(--paper); }
-.stage .lead, .page-hero .lead, .section--room .lead, .section--room .note { color: var(--on-dark); }
-
-.stage .btn, .page-hero .btn, .section--room .btn { background: var(--accent); border-color: var(--accent); color: var(--wall); }
-.stage .btn:hover, .page-hero .btn:hover, .section--room .btn:hover { background: var(--paper); border-color: var(--paper); color: var(--wall); }
-.stage .btn--ghost, .page-hero .btn--ghost, .section--room .btn--ghost { background: transparent; border-color: var(--paper); color: var(--paper); }
-.stage .btn--ghost:hover, .page-hero .btn--ghost:hover, .section--room .btn--ghost:hover { background: var(--paper); border-color: var(--paper); color: var(--wall); }
-.section--room .plans { color: var(--wall); border-color: var(--wall); }
-.section--room .plan .btn--ghost { border-color: var(--wall); color: var(--wall); }
-.section--room .plan .btn--ghost:hover { background: var(--wall); border-color: var(--wall); color: var(--paper); }
-.section--room .textlink:hover { color: var(--accent); }
-
-.page-hero .finder::before, .section--room .finder::before, .section--wall .finder::before { --c: var(--accent); }
-
-/* scéna */
-.try { color: var(--accent); }
-.try::before { background: var(--accent); box-shadow: 0 0 0 0 rgba(234, 225, 81, 0.55); animation-name: try-pulse; }
-@keyframes try-pulse { 70% { box-shadow: 0 0 0 12px rgba(234, 225, 81, 0); } 100% { box-shadow: 0 0 0 0 rgba(234, 225, 81, 0); } }
-.scroll-cue { color: var(--on-dark); }
-.scroll-cue::before { background: var(--accent); }
-.stage__progress button::before { background: rgba(255, 255, 255, 0.25); }
-.stage__progress button[aria-current="true"]::before { background: var(--accent); }
-.stage__status .stage__hint { background: rgba(24, 33, 47, 0.85); border-color: rgba(255, 255, 255, 0.25); color: var(--paper); }
-.stage .stage__reset { background: var(--accent); border-color: var(--accent); color: var(--wall); }
-.tag--dim { background: var(--accent); color: var(--wall); }
-.tag--measure { background: var(--paper); color: var(--wall); box-shadow: 0 0 0 2px var(--wall); }
-.tag--focus { background: var(--accent); color: var(--wall); }
-.tag--focus span { color: #3b4658; }
-.spot { background: var(--accent); color: var(--wall); border-color: var(--wall); animation-name: try-pulse; }
-.spot[aria-expanded="true"] { background: var(--paper); color: var(--wall); }
-.spot-card { color: var(--wall); }
-@media (max-width: 860px) {
-  .stage__copy { background: var(--wall); border-top-color: rgba(255, 255, 255, 0.14); }
-  .stage__pin::after { background: var(--wall); }
-}
-
-/* pás se zakázkami */
-.clients { background: var(--accent); border-bottom: 0; color: var(--wall); }
-.clients__label { color: var(--wall); opacity: 0.75; }
-
-/* přepínač na modrém pásu */
-.section--room .show__tab { color: var(--paper); border-color: rgba(255, 255, 255, 0.4); }
-.section--room .show__tab span { color: var(--on-dark); }
-.section--room .show__tab[aria-selected="true"] { background-image: linear-gradient(var(--accent), var(--accent)); }
-.section--room .show__tab[aria-selected="true"] strong { color: var(--accent); }
-.section--room .types > div { border-top-color: rgba(255, 255, 255, 0.45); }
-.section--room .types dd { color: var(--on-dark); }
-.section--room .types > div:hover { border-top-color: var(--accent); }
-
-/* kontakt */
-.form .btn { background: var(--accent); border-color: var(--accent); color: var(--wall); }
-.form .btn:hover { background: var(--paper); border-color: var(--paper); }
-.form input:focus-visible, .form select:focus-visible, .form textarea:focus-visible { outline-color: var(--accent); }
-.eye__brackets { stroke: var(--accent); }
-.contact__list span, .section--wall .lead, .section--wall .note { color: var(--on-dark); }
-
-/* weby */
-.web-grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start; }
-.web-grid .plans { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.included--one { columns: 1; }
-@media (max-width: 860px) { .web-grid { grid-template-columns: 1fr; } .web-grid .plans { grid-template-columns: 1fr; } }
-
-/* doladění kontrastu popisků v modelu */
+/* úvodní scéna: světlá, bez rastru */
+.stage { background: var(--ivory); background-image: none; color: var(--wall); }
+.try { color: var(--wall); background: var(--accent); padding: 0.4rem 0.85rem 0.4rem 0.7rem; }
+.try::before { background: var(--wall); box-shadow: none; animation: try-blink 1.6s ease-in-out infinite; }
+@keyframes try-blink { 50% { opacity: 0.25; } }
+.scroll-cue { color: var(--muted); }
+.scroll-cue::before { background: var(--wall); }
+.stage__progress button::before { background: var(--line); }
+.stage__progress button[aria-current="true"]::before { background: var(--wall); }
+.stage__status .stage__hint { background: var(--paper); border-color: var(--line); color: var(--muted); }
+.stage__reset { min-height: 40px; padding: 0.35rem 0.9rem; font-size: 0.92rem; }
 .tag--dim { background: var(--wall); color: var(--accent); }
-.spot { background: var(--wall); color: var(--accent); border-color: var(--accent); }
+.tag--measure { background: var(--accent); color: var(--wall); box-shadow: 0 0 0 2px var(--wall); }
+.tag--focus { background: var(--wall); color: var(--paper); }
+.tag--focus span { color: var(--on-dark); }
+.spot { background: var(--wall); color: var(--accent); border-color: var(--paper); animation-name: spot-ring; }
+@keyframes spot-ring { 70% { box-shadow: 0 0 0 12px rgba(24, 33, 47, 0); } 100% { box-shadow: 0 0 0 0 rgba(24, 33, 47, 0); } }
+.spot { box-shadow: 0 0 0 0 rgba(24, 33, 47, 0.4); }
 .spot[aria-expanded="true"] { background: var(--accent); color: var(--wall); border-color: var(--wall); }
-.also { font-size: 0.95rem; color: var(--on-dark); max-width: 34ch; margin-top: 1.4rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.2); max-width: none; }
-.also a { color: var(--accent); font-weight: 600; text-underline-offset: 0.2em; white-space: nowrap; }
+.also { font-size: 0.95rem; color: var(--muted); margin-top: 1.4rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.also a { color: var(--wall); font-weight: 650; text-underline-offset: 0.2em; text-decoration-color: var(--accent); text-decoration-thickness: 3px; white-space: nowrap; }
 .js .stage .beat:first-child > :nth-child(4) { animation-delay: 0.36s; }
 .js .stage .beat:first-child > :nth-child(5) { animation-delay: 0.48s; }
-@media (max-width: 860px) { .also { margin-top: 0.7rem; padding-top: 0.6rem; font-size: 0.85rem; } }
 
-/* úvod na mobilu: víc místa pro text, tlačítka vedle sebe */
 @media (max-width: 860px) {
   .stage__view { inset: 0 0 52% 0; }
-  .stage__copy { top: 48%; }
+  .stage__copy { top: 48%; background: var(--paper); border-top: 1px solid var(--line); }
+  .stage__pin::after { background: var(--paper); }
   .stage__status { bottom: calc(52% + 8px); }
   .beat .btn-row { flex-wrap: nowrap; gap: 0.5rem; }
   .beat .btn-row .btn { flex: 1; padding: 0.5rem 0.4rem; font-size: 0.9rem; white-space: nowrap; }
   .beat .lead { font-size: 0.95rem; line-height: 1.45; }
+  .also { margin-top: 0.7rem; padding-top: 0.6rem; font-size: 0.85rem; }
 }
 @media (max-width: 860px) and (max-height: 700px) { .beat .also { display: none; } }
 
-/* krátká fakta pod balíčky */
-.facts { display: flex; flex-wrap: wrap; gap: 0.5rem 0.6rem; list-style: none; margin: 1.5rem 0 0; padding: 0; }
-.facts li { padding: 0.35rem 0.8rem; background: var(--accent-soft); border: 1.5px solid var(--wall); font-weight: 550; font-size: 0.95rem; }
+/* pás se zakázkami */
+.clients { background: var(--ivory); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 
-/* pás prohlídek na modrém podkladu */
-.section--room .ref__body p { color: var(--on-dark); }
-.section--room .reel__nav button { border-color: var(--paper); color: var(--paper); }
-.section--room .reel__nav button:hover { background: var(--accent); border-color: var(--accent); color: var(--wall); }
-.section--room .reel__nav button:disabled { background: none; border-color: var(--paper); color: var(--paper); }
+/* přepínač */
+.show__tab[aria-selected="true"] { background: linear-gradient(var(--accent), var(--accent)) left / 6px 100% no-repeat; }
+.show__panel { position: absolute; }
+.show__open { position: absolute; left: 16px; bottom: 16px; }
+.show__todo { position: absolute; left: 16px; bottom: 16px; margin: 0; background: var(--accent); color: var(--wall); padding: 0.4rem 0.8rem; font-weight: 600; font-size: 0.92rem; }
+.extras-title { margin-top: 2.5rem; font-size: 1.05rem; }
+
+/* krátká fakta */
+.facts { display: flex; flex-wrap: wrap; gap: 0.5rem 0.6rem; list-style: none; margin: 1rem 0 0; padding: 0; }
+.facts li { padding: 0.4rem 0.85rem; background: var(--accent-soft); border: 1.5px solid var(--wall); font-weight: 550; font-size: 0.95rem; }
+.facts--stack { flex-direction: column; align-items: flex-start; margin: 0; }
+
+/* kontakt: jediná tmavá plocha */
+.form input:focus-visible, .form select:focus-visible, .form textarea:focus-visible { outline-color: var(--accent); }
+.section--wall .btn--accent:hover { background: var(--paper); border-color: var(--paper); color: var(--wall); }
+.eye__brackets { stroke: var(--accent); }
+.contact__list span, .section--wall .lead, .section--wall .note { color: var(--on-dark); }
+
+/* ikony sociálních sítí */
+.social { display: flex; gap: 0.3rem; list-style: none; margin: 0; padding: 0; }
+.social a { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; color: inherit; border: 0 !important; padding: 0 !important; transition: background-color 0.15s, color 0.15s, transform 0.15s; }
+.social svg { width: 21px; height: 21px; fill: currentColor; }
+.social a:hover { background: var(--accent); color: var(--wall); transform: translateY(-2px); }
+.contact__list .social { margin-top: 0.4rem; margin-left: -0.5rem; }
+.contact__list .social a { font-size: inherit; }
+.site-footer .wrap { align-items: center; }
+.site-footer__links { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.25rem; }
+.site-footer .social a { color: var(--paper); }
+.site-footer .social a:hover { color: var(--wall); }
+@media (max-width: 1040px) and (min-width: 861px) { .nav .social { display: none; } }
+@media (max-width: 860px) { .nav .social { padding: 0.75rem 0 0; } }

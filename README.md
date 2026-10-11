@@ -9,25 +9,26 @@ Zkušební verze nového webu showspace.cz. Živý web zůstává v repozitáři
 
 | Soubor | Obsah |
 | --- | --- |
-| `index.html` | Pro makléře: klikací 3D model bytu řízený scrollem, hotová zakázka, co dostanou, služby a ceny, postup, další prostory, weby, otázky |
-| `prostory.html` | Další prostory: všechny prohlídky s filtrem, fotografie, pro koho to je, služby a ceny pro provozy |
-| `gdpr.html` | Zásady ochrany osobních údajů (text převzatý ze starého webu) |
+| `index.html` | Pro makléře: klikací 3D model podle půdorysu zakázky Houseboat Praha, hotová zakázka, co dostanou, měsíční předplatné, postup, další prostory, otázky |
+| `prostory.html` | Další prostory: všechny prohlídky s filtrem, fotografie, pro koho to je, cena individuálně |
+| `gdpr.html` | Zásady ochrany osobních údajů |
 
 ## Složky
 
 - `assets/css/styles.css` – veškeré styly, barvy jsou nahoře v `:root`
 - `assets/js/site.js` – menu, prohlížeč prohlídek a fotek, filtr, přepínač „Co dostanete“, pás prohlídek, odkrývání při scrollu, oko v kontaktu
-- `assets/js/model.js` – 3D model bytu (dispozice, nábytek, kóty a informační body jsou nahoře v souboru)
+- `assets/js/model.js` – 3D model (dispozice, nábytek, kóty a informační body jsou nahoře v souboru)
 - `assets/vendor/` – knihovna three.js (MIT)
 - `assets/fonts/` – písmo Archivo (OFL), hostované lokálně
-- `assets/img/`, `assets/video/` – fotky a videa zmenšené pro web
+- `assets/img/` – fotky z vlastních zakázek zmenšené pro web
 
 ## Před spuštěním na showspace.cz
 
-- [ ] Doplnit ceny v `index.html` a `prostory.html` (hledat `X XXX Kč`) a potvrdit rozdělení balíčků
-- [ ] Smazat poznámky „Návrh k doplnění“ (hledat `draft-note`)
+- [ ] Doplnit ceny předplatného v `index.html` (hledat `X XXX Kč`) a potvrdit názvy a počty nemovitostí v balíčcích
+- [ ] Smazat poznámku „Návrh k doplnění“ (hledat `draft-note`)
+- [ ] Nahrát české video s AI komentářem a vložit ho do přepínače „Co dostanete“ (hledat `show__todo`)
+- [ ] Potvrdit seznam „Na přání k tomu přidáme“ podle toho, co máte v tarifu Giraffe360
 - [ ] Smazat `<meta name="robots" content="noindex, nofollow">` ve všech stránkách
-- [ ] Projít texty: příklady u informačních bodů v 3D modelu, odpovědi v sekci otázek, sekci o webech
-- [ ] Doplnit skutečné reference klientů (citace), až budou k dispozici
+- [ ] Nechat zkontrolovat `gdpr.html`; při přidání měření návštěvnosti nebo reklamních pixelů ho upravit
 - [ ] Změřit rychlost úvodní stránky na živé adrese (PageSpeed Insights)
 - [ ] Přidat soubor `CNAME` s obsahem `showspace.cz` a přepnout doménu v nastavení GitHub Pages
