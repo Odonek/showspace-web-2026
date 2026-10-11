@@ -12,11 +12,13 @@ Zkušební verze nového webu showspace.cz. Živý web zůstává v repozitáři
 | `index.html` | Pro makléře: klikací 3D model podle půdorysu zakázky Houseboat Praha, hotová zakázka, co dostanou, měsíční předplatné, postup, další prostory, otázky |
 | `prostory.html` | Další prostory: všechny prohlídky s filtrem, fotografie, pro koho to je, cena individuálně |
 | `gdpr.html` | Zásady ochrany osobních údajů |
+| `sluzby.html`, `galerie.html` | Přesměrování ze starých adres současného webu |
+| `404.html` | Stránka pro neexistující adresy |
 | `sitemap.xml`, `robots.txt` | Mapa webu a pokyny pro vyhledávače (počítají s adresou showspace.cz) |
 
 ## Složky
 
-- `assets/css/styles.css` – veškeré styly, barvy jsou nahoře v `:root`
+- `assets/css/styles.css` – veškeré styly; barvy a zaoblení tlačítek jsou nahoře v `:root`
 - `assets/js/site.js` – menu, prohlížeč prohlídek a fotek, filtr, přepínač „Co dostanete“, pás prohlídek, odkrývání při scrollu, oko v kontaktu
 - `assets/js/model.js` – 3D model (dispozice, nábytek, kóty a informační body jsou nahoře v souboru)
 - `assets/vendor/` – knihovna three.js (MIT)
@@ -25,6 +27,8 @@ Zkušební verze nového webu showspace.cz. Živý web zůstává v repozitáři
 
 ## Před spuštěním na showspace.cz
 
+- [ ] Poslat zkušební poptávku z formuláře a ověřit, že dorazí e-mail (a zkontrolovat měsíční limit ve Formspree)
+- [ ] Doplnit recenze z Googlu (potřeba odkaz na firemní profil nebo texty recenzí)
 - [ ] Doplnit ceny předplatného v `index.html` (hledat `X XXX Kč`) a potvrdit názvy a počty nemovitostí v balíčcích
 - [ ] Smazat poznámku „Návrh k doplnění“ (hledat `draft-note`)
 - [ ] Nahrát české video s AI komentářem a vložit ho do přepínače „Co dostanete“ (hledat `show__todo`)

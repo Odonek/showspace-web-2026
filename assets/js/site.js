@@ -303,3 +303,49 @@ if (eye && !calm) {
     look.style.setProperty('--ey', `${((dy / d) * 8 * reach).toFixed(1)}px`);
   }, { passive: true });
 }
+
+// ---------------------------------------------------------------------
+// Formulář: odeslání bez opuštění stránky, česká odpověď
+// (bez JavaScriptu se odešle běžným způsobem)
+// ---------------------------------------------------------------------
+document.querySelectorAll('[data-form]').forEach((form) => {
+  const status = form.querySelector('.form__status');
+  const button = form.querySelector('[type="submit"]');
+  const say = (text, error = false) => {
+    status.textContent = text;
+    status.classList.toggle('is-error', error);
+    status.hidden = false;
+  };
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const label = button.textContent;
+    button.disabled = true;
+    button.textContent = 'Odesílám…';
+    status.hidden = true;
+    try {
+      const res = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
+      if (!res.ok) throw new Error(String(res.status));
+      form.classList.add('is-sent');
+      say('Poptávka je odeslaná. Ozveme se do 24 hodin.');
+      status.focus?.();
+    } catch {
+      say('Odeslání se nepovedlo. Zkuste to prosím znovu, nebo napište na info@showspace.cz.', true);
+      button.disabled = false;
+      button.textContent = label;
+    }
+  });
+});
+
+// ---------------------------------------------------------------------
+// Spodní lišta na mobilu: ukáže se pod úvodem, schová se u kontaktu
+// ---------------------------------------------------------------------
+const callbar = document.querySelector('.callbar');
+if (callbar && 'IntersectionObserver' in window) {
+  const hideNear = [document.querySelector('.stage, .page-hero'), document.querySelector('#kontakt'), document.querySelector('.site-footer')].filter(Boolean);
+  const inView = new Set();
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => (e.isIntersecting ? inView.add(e.target) : inView.delete(e.target)));
+    callbar.hidden = inView.size > 0;
+  });
+  hideNear.forEach((el) => io.observe(el));
+}
