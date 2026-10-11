@@ -188,7 +188,7 @@ p { margin: 0; max-width: 62ch; text-wrap: pretty; }
 /* =====================================================================
    Úvodní scéna s 3D modelem
    ===================================================================== */
-.stage { position: relative; height: 430vh; background: var(--paper); }
+.stage { position: relative; height: 530vh; background: var(--paper); }
 .stage__pin {
   position: sticky; top: var(--header-h);
   height: calc(100vh - var(--header-h)); height: calc(100svh - var(--header-h));
@@ -264,7 +264,7 @@ p { margin: 0; max-width: 62ch; text-wrap: pretty; }
 .spot-card[hidden] { display: none; }
 
 @media (max-width: 860px) {
-  .stage { height: 400vh; }
+  .stage { height: 490vh; }
   .stage__view { inset: 0 0 52% 0; }
   .stage__copy {
     left: 0; right: 0; width: auto; top: 48%; bottom: 44px;
@@ -698,17 +698,40 @@ p { margin: 0; max-width: 62ch; text-wrap: pretty; }
 .form { align-content: start; }
 
 /* =====================================================================
-   Konec úvodu: model „vletí“ do místnosti a překryje ho skutečná prohlídka
+   Úvod: přepínač 2D / 3D a krok s dráhou slunce
    ===================================================================== */
-.stage { height: 560vh; }
-.stage__tour { position: absolute; inset: 14px 14px 14px 11%; z-index: 2; opacity: 0; pointer-events: none; background: var(--wall); border-radius: 20px; overflow: hidden; box-shadow: 0 24px 60px -30px rgba(20, 28, 43, 0.55); }
-.stage__tour iframe { width: 100%; height: 100%; border: 0; display: block; }
-.stage__tour.is-on { pointer-events: auto; }
-.stage.is-touring .stage__status { display: none; }
-.stage .beat:last-child { max-width: 27rem; }
-.stage.is-static .stage__tour { display: none; }
-@media (max-width: 860px) {
-  .stage { height: 520vh; }
-  .stage__tour { inset: 0; border-radius: 0; box-shadow: none; }
-  .stage .beat:last-child { max-width: none; }
+.stage__mode { display: none; padding: 3px; gap: 2px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-btn); }
+.stage[data-mode="explore"] .stage__mode, .stage[data-mode="measure"] .stage__mode, .stage[data-mode="sun"] .stage__mode { display: inline-flex; }
+.stage__mode button, .sun__seasons button {
+  min-width: 46px; min-height: 34px; padding: 0.2rem 0.8rem; border: 0; border-radius: var(--r-btn);
+  background: none; color: var(--muted); font: inherit; font-size: 0.9rem; font-weight: 650; cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
 }
+.stage__mode button:hover, .sun__seasons button:hover { color: var(--wall); }
+.stage__mode button[aria-pressed="true"], .sun__seasons button[aria-pressed="true"] { background: var(--wall); color: var(--paper); }
+
+.sun { display: grid; gap: 0.8rem; margin-top: 1.4rem; }
+.sun__seasons { display: inline-flex; justify-self: start; padding: 3px; gap: 2px; border: 1px solid var(--line); border-radius: var(--r-btn); background: var(--paper); }
+.sun__seasons button { min-height: 38px; padding-inline: 1rem; }
+.sun__time { display: grid; gap: 0.35rem; }
+.sun__time span { font-size: 0.9rem; color: var(--muted); display: flex; align-items: baseline; gap: 0.5rem; }
+.sun__time output { font-stretch: 120%; font-weight: 700; font-size: 1.5rem; line-height: 1; color: var(--wall); font-variant-numeric: tabular-nums; }
+.sun__time input { -webkit-appearance: none; appearance: none; width: 100%; height: 28px; margin: 0; background: none; cursor: pointer; }
+.sun__time input::-webkit-slider-runnable-track { height: 8px; border-radius: 999px; background: linear-gradient(90deg, #f3c9a0, var(--accent) 50%, #f3c9a0); box-shadow: inset 0 0 0 1px rgba(20, 28, 43, 0.25); }
+.sun__time input::-moz-range-track { height: 8px; border-radius: 999px; background: linear-gradient(90deg, #f3c9a0, var(--accent) 50%, #f3c9a0); box-shadow: inset 0 0 0 1px rgba(20, 28, 43, 0.25); }
+.sun__time input::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; margin-top: -9px; border-radius: 50%; background: var(--accent); border: 2px solid var(--wall); }
+.sun__time input::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); border: 2px solid var(--wall); }
+.sun__time input:focus-visible { outline: 2px solid var(--wall); outline-offset: 4px; border-radius: 999px; }
+.sun__rooms { margin: 0; font-size: 0.95rem; color: var(--body-soft); min-height: 2.9em; }
+.sun__rooms strong { color: var(--wall); }
+.tag--north { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--wall); }
+.tag--sun { font-size: 0.85rem; font-weight: 700; font-variant-numeric: tabular-nums; background: var(--wall); color: var(--accent); padding: 0.12rem 0.5rem; border-radius: var(--r-btn); transition: none; }
+@media (max-width: 860px) {
+  .sun { gap: 0.45rem; margin-top: 0.6rem; }
+  .sun__seasons button { min-height: 34px; }
+  .sun__time output { font-size: 1.25rem; }
+  .sun__rooms { font-size: 0.85rem; min-height: 2.7em; }
+  .stage__mode button { min-height: 30px; min-width: 42px; }
+}
+@media (max-width: 860px) and (max-height: 700px) { .stage [data-sun] ~ *, .beat:has([data-sun]) .lead { display: none; } }
+.stage.no-webgl .sun { display: none; }

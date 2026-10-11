@@ -8,8 +8,9 @@
 //   krok 0 – statický 2D půdorys
 //   krok 1 – stěny se zvednou do 3D, kliknutím na místnost do ní kamera vletí
 //   krok 2 – kliknutím na dvě místa se změří vzdálenost
-//   krok 3 – kamera přiblíží obývací pokoj, „vletí“ do něj a na stejném místě
-//            se objeví skutečná prohlídka z Giraffe360 (adresa je v index.html, data-src)
+//   krok 3 – dráha slunce: stíny a světlo z oken podle času a ročního období
+//   krok 4 – kamera přiblíží obývací pokoj a ukáže informační body
+// Ve 3D krocích jde model přepnout zpět na 2D půdorys (tlačítka 2D / 3D).
 import * as THREE from '../vendor/three.module.min.js';
 
 const stage = document.querySelector('.stage');
@@ -20,11 +21,8 @@ const planImg = view?.querySelector('.stage__fallback img');
 const beats = stage ? [...stage.querySelectorAll('.beat')] : [];
 const dots = stage ? [...stage.querySelectorAll('.stage__progress button')] : [];
 const resetBtn = stage?.querySelector('.stage__reset');
-const tourBox = view?.querySelector('.stage__tour');
-
-// kde na ose scrollu (0–1) začínají jednotlivé kroky a kam skáčou tečky průběhu
-const BEAT_AT = [0, 0.22, 0.45, 0.68];
-const DOT_TO = [0, 0.34, 0.57, 0.95];
+const modeBox = stage?.querySelector('.stage__mode');
+const sunBox = stage?.querySelector('[data-sun]');
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -90,8 +88,31 @@ const HINTS = [
   'Byt 3+1, Svitavy, 63,7 m²: půdorys z naší zakázky',
   'Klikněte na místnost. Tažením model otočíte.',
   'Klikněte na dvě místa a změřte vzdálenost.',
+  'Posuňte čas a sledujte stíny a světlo z oken.',
   'Klikněte na bod v modelu.',
 ];
+const MODES = ['plan', 'explore', 'measure', 'sun', 'spots'];
+const SUN_BEAT = 3, SPOT_BEAT = 4;
+
+// ---- slunce ----
+// Sever je na půdorysu pootočený o 28,5° po směru hodin (růžice v rohu výkresu z Giraffe360).
+const NORTH_DEG = 28.5;
+const LAT = 49.76, LON = 16.47;          // Svitavy
+// roční období: deklinace slunce a posun místního času proti UTC (zimní / letní čas)
+const SEASONS = {
+  zima: { decl: -23.44, tz: 1, label: '21. prosince' },
+  jaro: { decl: 0, tz: 1, label: '21. března' },
+  leto: { decl: 23.44, tz: 2, label: '21. června' },
+};
+// okna: úsečka na vnitřní hraně stěny, směr ven z bytu, místnost (index v ROOMS), výška parapetu a nadpraží
+const WINDOWS = [
+  { a: [0.275, 1.49], b: [0.275, 3.55], n: [-1, 0], room: 0, sill: 0.9, top: 2.3 },
+  { a: [0.275, 5.03], b: [0.275, 6.08], n: [-1, 0], room: 1, sill: 0.9, top: 2.3 },
+  { a: [0.275, 7.47], b: [0.275, 9.05], n: [-1, 0], room: 2, sill: 0.9, top: 2.3 },
+  { a: [0.3, 9.08], b: [1.84, 9.08], n: [0, 1], room: 2, sill: 0.9, top: 2.3 },
+  { a: [9.56, 6.52], b: [9.56, 8.72], n: [1, 0], room: 3, sill: 0, top: 2.2 },
+];
+const SUN_C = [4.92, 4.68], SUN_R = 7.3;  // střed a poloměr dráhy slunce kolem bytu
 
 const CENTER = new THREE.Vector3((PLANE[0] + PLANE[2]) / 2, 0, (PLANE[1] + PLANE[3]) / 2);
 const PLANE_W = PLANE[2] - PLANE[0], PLANE_H = PLANE[3] - PLANE[1];
@@ -293,10 +314,11 @@ function init() {
   let progress = reduceMotion ? 0.4 : 0;
   let beat = reduceMotion ? 1 : 0;
   let width = 1, height = 1, baseRadius = 24;
-  const cur = { rise: reduceMotion ? 1 : 0, az: 0, pol: 0.001, rad: 1, dim: 0, spot: 0, tx: CENTER.x, tz: CENTER.z, focus: 0 };
+  const cur = { rise: reduceMotion ? 1 : 0, az: 0, pol: 0.001, rad: 1, dim: 0, spot: 0, sun: 0, tx: CENTER.x, tz: CENTER.z, focus: 0 };
   const user = { az: 0, pol: 0 };
   let focused = null, hovered = null, autoFocus = false;
   let visible = true, needsFrame = true, lastInteraction = 0, lastTime = 0, shadowRise = -1, ready = false;
+  let flat = false;                       // ručně přepnuto na 2D půdorys
 
   const clamp01 = (v) => Math.min(1, Math.max(0, v));
   const smooth = (a, b, v) => { const t = clamp01((v - a) / (b - a)); return t * t * (3 - 2 * t); };
@@ -307,28 +329,30 @@ function init() {
 
   function targets(p) {
     const rise = smooth(0.06, 0.26, p);
-    const s2 = smooth(0.4, 0.5, p);
-    const s3 = smooth(0.68, 0.78, p);
-    const dive = smooth(0.79, 0.87, p);   // vlet do místnosti těsně před prohlídkou
+    const s2 = smooth(0.36, 0.45, p);
+    const sIn = smooth(0.57, 0.64, p), sOut = smooth(0.78, 0.83, p);
+    const sSun = reduceMotion ? (sunState.manual ? 1 : 0) : sIn * (1 - sOut);
+    const s3 = smooth(0.83, 0.93, p);
     const narrow = camera.aspect < 1.2;
     const t = {
       rise,
-      pol: mix(mix(0.001, deg(46), rise), deg(38), s2),
-      az: mix(mix(0, deg(-26), rise), deg(16), s2) + s3 * deg(14),
-      rad: mix(1, narrow ? 1.16 : 1.42, rise),
-      dim: s2 * (1 - smooth(0.62, 0.68, p)) * (measure.a ? 0 : 1),
-      spot: s3 * (1 - dive),
+      pol: mix(mix(mix(0.001, deg(46), rise), deg(38), s2), deg(40), sSun),
+      az: mix(mix(mix(0, deg(-26), rise), deg(16), s2), deg(-8), sIn) + s3 * deg(38),
+      rad: mix(mix(1, narrow ? 1.16 : 1.42, rise), narrow ? 1.6 : 1.68, sSun),
+      dim: s2 * (1 - smooth(0.55, 0.59, p)) * (measure.a ? 0 : 1),
+      spot: s3,
+      sun: sSun,
       tx: CENTER.x,
       tz: mix(CENTER.z, CENTER.z + 0.45, rise),
       focus: 0,
     };
+    if (flat) { t.rise = 0; t.pol = 0.001; t.az = 0; t.rad = mix(1, narrow ? 1.5 : 1.6, sSun); t.tz = mix(CENTER.z, SUN_C[1], sSun); }
     if (focused) {
       t.tx = focused.center[0];
       t.tz = focused.center[1];
       t.rad = ((focused.size * 2.3 + 9) / baseRadius) * (narrow ? 1.15 : 1);
       t.pol = deg(44);
       t.focus = autoFocus ? 0 : 1;
-      if (autoFocus) { t.rad *= mix(1, 0.3, dive); t.pol = mix(deg(44), deg(68), dive); }
     }
     return t;
   }
@@ -349,22 +373,24 @@ function init() {
   function setBeat(next) {
     if (next === beat) return;
     beat = next;
-    autoFocus = beat === 3;
+    autoFocus = beat === SPOT_BEAT;
     setFocus(autoFocus ? mainRoom : null);
     if (beat !== 2) clearMeasure();
-    if (beat !== 3) closeSpots();
+    if (beat !== SPOT_BEAT) closeSpots();
+    if (beat !== SUN_BEAT) sunState.manual = false;
+    setFlat(false);
     setHover(null);
     updateUi();
   }
 
   function updateUi() {
-    if (hintEl) hintEl.textContent = tourOn ? 'Skutečná prohlídka: byt 3+1, Svitavy' : focused && !autoFocus ? [focused.name, focused.area].filter(Boolean).join(', ') : HINTS[beat] || HINTS[0];
+    if (hintEl) hintEl.textContent = focused && !autoFocus ? [focused.name, focused.area].filter(Boolean).join(', ') : HINTS[beat] || HINTS[0];
     if (resetBtn) {
       const show = (!!focused && !autoFocus) || (!!measure.a && beat === 2);
       resetBtn.hidden = !show;
       resetBtn.textContent = focused ? 'Zpět na celý byt' : 'Smazat měření';
     }
-    stage.dataset.mode = ['plan', 'explore', 'measure', 'spots'][beat];
+    stage.dataset.mode = MODES[beat];
   }
 
   function readScroll() {
@@ -372,41 +398,188 @@ function init() {
     const r = stage.getBoundingClientRect();
     const total = r.height - window.innerHeight;
     progress = total > 0 ? clamp01(-r.top / total) : 0;
-    let b = 0;
-    BEAT_AT.forEach((at, i) => { if (progress >= at) b = i; });
+    const b = Math.min(beats.length - 1, Math.floor(progress * beats.length * 0.999));
     beats.forEach((el, i) => el.classList.toggle('is-active', i === b));
     dots.forEach((d, i) => d.setAttribute('aria-current', String(i === b)));
     setBeat(b);
-    updateTour();
+    // v kroku se sluncem posouvá čas samotný scroll, dokud si ho návštěvník nenastaví sám
+    if (beat === SUN_BEAT && !sunState.manual) {
+      const [lo, hi] = sunState.range;
+      setSunTime(mix(lo + 40, hi - 40, clamp01((progress - 0.62) / 0.15)), false);
+    }
     needsFrame = true;
   }
 
-  // Skutečná prohlídka: načte se s předstihem a na konci scrollu překryje model.
-  let tourFrame = null, tourOn = false;
-  function updateTour() {
-    if (!tourBox || reduceMotion) return;
-    if (!tourFrame && progress > 0.6) {
-      tourFrame = document.createElement('iframe');
-      tourFrame.src = tourBox.dataset.src;
-      tourFrame.title = tourBox.dataset.title || 'Virtuální prohlídka';
-      tourFrame.allow = 'fullscreen; vr; xr-spatial-tracking; gyroscope; accelerometer';
-      tourFrame.allowFullscreen = true;
-      tourFrame.tabIndex = -1;
-      tourBox.appendChild(tourFrame);
-    }
-    const a = smooth(0.85, 0.9, progress);
-    tourBox.style.opacity = a.toFixed(3);
-    // model pod prohlídkou zmizí, ať nevykukuje po stranách
-    canvas.style.opacity = (1 - a).toFixed(3);
-    const on = a > 0.98;
-    if (on !== tourOn) {
-      tourOn = on;
-      tourBox.classList.toggle('is-on', on);
-      stage.classList.toggle('is-touring', on);
-      if (tourFrame) tourFrame.tabIndex = on ? 0 : -1;
-      updateUi();
-    }
+  // ---- přepínač 2D / 3D ----
+  function setFlat(on) {
+    if (flat === on) return;
+    flat = on;
+    user.az = 0; user.pol = 0;
+    if (on) setFocus(null);
+    modeBox?.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.view === '2d') === on)));
+    needsFrame = true;
   }
+  modeBox?.addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-view]');
+    if (b) setFlat(b.dataset.view === '2d');
+  });
+
+  // ---- slunce: poloha podle času, stíny a světlo dopadající okny ----
+  const rad2 = (d) => (d * Math.PI) / 180;
+  const NORTH = [Math.sin(rad2(NORTH_DEG)), -Math.cos(rad2(NORTH_DEG))];   // směr k severu v rovině půdorysu [x, z]
+  const EAST = [Math.cos(rad2(NORTH_DEG)), Math.sin(rad2(NORTH_DEG))];
+  const sunState = { season: 'leto', minutes: 9 * 60, manual: false, range: [300, 1260], dir: new THREE.Vector3(0, 1, 0), elev: 1 };
+  // výška a směr slunce pro místní čas v minutách
+  function sunAt(minutes, season) {
+    const { decl, tz } = SEASONS[season];
+    const H = rad2(15 * (minutes / 60 - tz + LON / 15 - 12));
+    const f = rad2(LAT), d = rad2(decl);
+    const elev = Math.asin(Math.sin(f) * Math.sin(d) + Math.cos(f) * Math.cos(d) * Math.cos(H));
+    const azim = Math.atan2(-Math.sin(H) * Math.cos(d), Math.cos(f) * Math.sin(d) - Math.sin(f) * Math.cos(d) * Math.cos(H));
+    const hx = NORTH[0] * Math.cos(azim) + EAST[0] * Math.sin(azim), hz = NORTH[1] * Math.cos(azim) + EAST[1] * Math.sin(azim);
+    return { elev, hx, hz };
+  }
+  // východ a západ slunce v místním čase (minuty), zaokrouhleno dovnitř na 10 minut
+  function dayRange(season) {
+    const { decl, tz } = SEASONS[season];
+    const H0 = Math.acos(-Math.tan(rad2(LAT)) * Math.tan(rad2(decl))) * 180 / Math.PI / 15;
+    const noon = (12 + tz - LON / 15) * 60;
+    return [Math.ceil((noon - H0 * 60) / 10) * 10, Math.floor((noon + H0 * 60) / 10) * 10];
+  }
+  const sunPoint = (o, out) => out.set(SUN_C[0] + SUN_R * Math.cos(o.elev) * o.hx, 0.25 + SUN_R * 0.62 * Math.sin(Math.max(0, o.elev)), SUN_C[1] + SUN_R * Math.cos(o.elev) * o.hz);
+
+  const sunGroup = new THREE.Group();
+  const sunLineMat = new THREE.MeshBasicMaterial({ color: 0x415a77, transparent: true, opacity: 0, depthWrite: false });
+  const sunBallMat = new THREE.MeshBasicMaterial({ color: C.accent, transparent: true, opacity: 0 });
+  const sunRimMat = new THREE.MeshBasicMaterial({ color: C.ink, transparent: true, opacity: 0, side: THREE.BackSide });
+  const lightMat = new THREE.MeshBasicMaterial({ color: 0xf4e23a, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide });
+  const ringGeo = new THREE.RingGeometry(SUN_R - 0.025, SUN_R + 0.025, 96);
+  ringGeo.rotateX(-Math.PI / 2);
+  const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0x9fb0c5, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+  ring.position.set(SUN_C[0], 0.01, SUN_C[1]);
+  const ball = new THREE.Mesh(new THREE.SphereGeometry(0.42, 24, 16), sunBallMat);
+  const rim = new THREE.Mesh(new THREE.SphereGeometry(0.47, 24, 16), sunRimMat);
+  // šipka k severu na obvodu kruhu
+  const arrowShape = new THREE.Shape([new THREE.Vector2(0, 0.55), new THREE.Vector2(0.3, -0.2), new THREE.Vector2(0, -0.05), new THREE.Vector2(-0.3, -0.2)]);
+  const arrowGeo = new THREE.ShapeGeometry(arrowShape);
+  arrowGeo.rotateX(-Math.PI / 2);                 // špička míří k -z
+  arrowGeo.rotateY(-rad2(NORTH_DEG));             // a pak k severu
+  const arrow = new THREE.Mesh(arrowGeo, new THREE.MeshBasicMaterial({ color: C.ink, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+  arrow.position.set(SUN_C[0] + NORTH[0] * (SUN_R + 0.55), 0.02, SUN_C[1] + NORTH[1] * (SUN_R + 0.55));
+  let arc = null;
+  // světlo z oken: jeden mesh, trojúhelníky se přepočítají při změně času
+  const lightGeo = new THREE.BufferGeometry();
+  const lightPos = new Float32Array(600 * 3);
+  lightGeo.setAttribute('position', new THREE.BufferAttribute(lightPos, 3));
+  lightGeo.setDrawRange(0, 0);
+  const lightMesh = new THREE.Mesh(lightGeo, lightMat);
+  lightMesh.frustumCulled = false;
+  lightMesh.renderOrder = 3;
+  sunGroup.add(ring, arrow, rim, ball, lightMesh);
+  sunGroup.visible = false;
+  scene.add(sunGroup);
+  const northTag = addTag('tag--north', 'Sever', [SUN_C[0] + NORTH[0] * (SUN_R + 1.5), 0, SUN_C[1] + NORTH[1] * (SUN_R + 1.5)], 'sun');
+  const sunTag = addTag('tag--sun', '', [0, 0, 0], 'sun');
+
+  function buildArc() {
+    if (arc) { sunGroup.remove(arc); arc.geometry.dispose(); }
+    const [lo, hi] = dayRange(sunState.season);
+    const pts = [];
+    for (let i = 0; i <= 48; i += 1) pts.push(sunPoint(sunAt(mix(lo - 10, hi + 10, i / 48), sunState.season), new THREE.Vector3()));
+    arc = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 96, 0.035, 6, false), sunLineMat);
+    sunGroup.add(arc);
+  }
+
+  // oříznutí mnohoúhelníku obdélníkem [x1, z1, x2, z2]
+  function clipRect(poly, [x1, z1, x2, z2]) {
+    const edges = [[0, x1, 1], [0, x2, -1], [1, z1, 1], [1, z2, -1]];
+    let out = poly;
+    for (const [ax, lim, sign] of edges) {
+      const src = out; out = [];
+      for (let i = 0; i < src.length; i += 1) {
+        const p = src[i], q = src[(i + 1) % src.length];
+        const pin = (p[ax] - lim) * sign >= 0, qin = (q[ax] - lim) * sign >= 0;
+        if (pin) out.push(p);
+        if (pin !== qin) { const k = (lim - p[ax]) / (q[ax] - p[ax]); out.push([p[0] + (q[0] - p[0]) * k, p[1] + (q[1] - p[1]) * k]); }
+      }
+      if (!out.length) break;
+    }
+    return out;
+  }
+
+  const fmtTime = (m) => `${Math.floor(m / 60)}:${String(Math.round(m % 60)).padStart(2, '0')}`;
+  const sunEls = sunBox ? { range: sunBox.querySelector('input[type="range"]'), out: sunBox.querySelector('output'), rooms: sunBox.querySelector('.sun__rooms'), seasons: [...sunBox.querySelectorAll('[data-season]')] } : null;
+
+  function updateSun() {
+    const o = sunAt(sunState.minutes, sunState.season);
+    sunState.elev = o.elev;
+    sunPoint(o, ball.position); rim.position.copy(ball.position);
+    sunTag.pos.copy(ball.position); sunTag.pos.y += 0.95;
+    sunTag.el.textContent = fmtTime(sunState.minutes);
+    // světlo pro stíny: u obzoru ho držíme aspoň 6° nad zemí, aby stíny nebyly nekonečné
+    const e = Math.max(rad2(6), o.elev);
+    sunState.dir.set(Math.cos(e) * o.hx, Math.sin(e), Math.cos(e) * o.hz);
+    // dopad světla z oken na podlahu
+    let n = 0;
+    const lit = [];
+    if (o.elev > rad2(1.5)) {
+      const k = 1 / Math.tan(o.elev);
+      for (const w of WINDOWS) {
+        const facing = o.hx * w.n[0] + o.hz * w.n[1];
+        if (facing < 0.08) continue;
+        const d1 = Math.min(14, w.sill * k), d2 = Math.min(14, w.top * k);
+        const quad = [[w.a[0] - o.hx * d1, w.a[1] - o.hz * d1], [w.b[0] - o.hx * d1, w.b[1] - o.hz * d1], [w.b[0] - o.hx * d2, w.b[1] - o.hz * d2], [w.a[0] - o.hx * d2, w.a[1] - o.hz * d2]];
+        for (const rect of ROOMS[w.room].rects) {
+          const poly = clipRect(quad, rect);
+          if (poly.length < 3) continue;
+          for (let i = 1; i < poly.length - 1 && n < 597; i += 1) {
+            for (const q of [poly[0], poly[i], poly[i + 1]]) { lightPos[n * 3] = q[0]; lightPos[n * 3 + 1] = 0.016; lightPos[n * 3 + 2] = q[1]; n += 1; }
+          }
+        }
+        const r = ROOMS[w.room];
+        const label = r.name === 'Pokoj' ? `pokoj ${r.area}` : r.name.charAt(0).toLowerCase() + r.name.slice(1);
+        if (!lit.includes(label)) lit.push(label);   // okno je ke slunci natočené, i když světlo dopadá jen na stěnu
+      }
+    }
+    lightGeo.setDrawRange(0, n);
+    lightGeo.attributes.position.needsUpdate = true;
+    if (sunEls) {
+      sunEls.out.textContent = fmtTime(sunState.minutes);
+      if (+sunEls.range.value !== Math.round(sunState.minutes)) sunEls.range.value = Math.round(sunState.minutes);
+      sunEls.range.setAttribute('aria-valuetext', `${fmtTime(sunState.minutes)}, ${SEASONS[sunState.season].label}`);
+      sunEls.rooms.innerHTML = lit.length ? `Slunce svítí do oken: <strong>${lit.join(', ')}</strong>` : 'Do oken teď přímé slunce nesvítí';
+    }
+    shadowRise = -1;        // vynutí přepočet stínů
+    needsFrame = true;
+  }
+  function setSunTime(minutes, manual) {
+    const [lo, hi] = sunState.range;
+    const m = Math.min(hi, Math.max(lo, minutes));
+    if (manual) sunState.manual = true;
+    if (Math.abs(m - sunState.minutes) < 0.5 && !manual) return;
+    sunState.minutes = m;
+    updateSun();
+  }
+  function setSeason(name) {
+    const [lo0, hi0] = sunState.range;
+    const part = clamp01((sunState.minutes - lo0) / (hi0 - lo0));
+    sunState.season = name;
+    sunState.range = dayRange(name);
+    const [lo, hi] = sunState.range;
+    if (sunEls) {
+      sunEls.range.min = lo; sunEls.range.max = hi;
+      sunEls.seasons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.season === name)));
+    }
+    sunState.minutes = Math.round(mix(lo, hi, part) / 10) * 10;   // stejná část dne i v jiném období
+    buildArc();
+    updateSun();
+  }
+  if (sunEls) {
+    sunEls.range.addEventListener('input', () => setSunTime(+sunEls.range.value, true));
+    sunEls.seasons.forEach((b) => b.addEventListener('click', () => { sunState.manual = true; setSeason(b.dataset.season); }));
+  }
+  sunState.range = dayRange('leto');
+  setSeason('leto');
 
   // ---- interakce ----
   const ray = new THREE.Raycaster();
@@ -468,7 +641,7 @@ function init() {
   }
 
   function onClick(e) {
-    if (cur.rise < 0.6) return;
+    if (cur.rise < 0.6 && !flat) return;
     if (beat === 1 || (reduceMotion && beat !== 2)) {
       const room = roomAt(e);
       setFocus(room && room !== focused ? room : null);
@@ -489,7 +662,7 @@ function init() {
     lastInteraction = performance.now();
     if (drag) {
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-      if (!drag.moved && Math.hypot(dx, dy) > 6 && cur.rise > 0.5) {
+      if (!drag.moved && Math.hypot(dx, dy) > 6 && cur.rise > 0.5 && !flat) {
         drag.moved = true;
         canvas.setPointerCapture(drag.id);
         canvas.classList.add('is-dragging');
@@ -501,7 +674,7 @@ function init() {
       }
       return;
     }
-    if (e.pointerType !== 'mouse' || cur.rise < 0.6) return;
+    if (e.pointerType !== 'mouse' || (cur.rise < 0.6 && !flat)) return;
     if (beat === 1) setHover(roomAt(e));
     else if (beat === 2) {
       const p = groundAt(e);
@@ -524,11 +697,13 @@ function init() {
   dots.forEach((d, i) => d.addEventListener('click', () => {
     const r = stage.getBoundingClientRect();
     const total = r.height - window.innerHeight;
-    window.scrollTo({ top: window.scrollY + r.top + total * DOT_TO[i], behavior: 'smooth' });
+    window.scrollTo({ top: window.scrollY + r.top + total * ((i + 0.5) / beats.length), behavior: 'smooth' });
   }));
 
   // ---- vykreslení ----
   const v = new THREE.Vector3();
+  const SUN_BASE = sun.position.clone();
+  let sunWas = false, sunShadow = 0;
   function frame(now) {
     requestAnimationFrame(frame);
     if (!visible) return;
@@ -556,8 +731,20 @@ function init() {
     walls.scale.y = h;
     caps.position.y = WALL_H * h + 0.02;
     things.scale.y = Math.max(0.002, smooth(0.2, 1, cur.rise));
-    shadowMat.opacity = 0.22 * cur.rise;
+    shadowMat.opacity = mix(0.22, 0.42, cur.sun) * cur.rise;
     dimMat.opacity = cur.dim;
+    // slunce: světlo se přesune z výchozí polohy na skutečný směr slunce
+    sunGroup.visible = cur.sun > 0.01;
+    if (sunGroup.visible || sunWas) {
+      sunWas = sunGroup.visible;
+      sun.position.copy(SUN_BASE).lerp(v.copy(sunState.dir).multiplyScalar(26).add(CENTER), cur.sun);
+      const low = 1 - smooth(0, deg(14), sunState.elev);
+      sun.color.setRGB(1, mix(0.957, mix(0.957, 0.78, low), cur.sun), mix(0.9, mix(0.9, 0.55, low), cur.sun));
+      sunLineMat.opacity = 0.9 * cur.sun; ring.material.opacity = 0.8 * cur.sun; arrow.material.opacity = cur.sun;
+      sunBallMat.opacity = cur.sun; sunRimMat.opacity = cur.sun;
+      lightMat.opacity = 0.62 * cur.sun * smooth(deg(1.5), deg(7), sunState.elev);
+      if (Math.abs(cur.sun - sunShadow) > 0.002) { sunShadow = cur.sun; shadowRise = -1; }
+    }
     if (Math.abs(cur.rise - shadowRise) > 0.002) { shadowRise = cur.rise; renderer.shadowMap.needsUpdate = true; }
 
     const pol = Math.min(deg(80), Math.max(0.001, cur.pol + user.pol * cur.rise));
@@ -580,6 +767,7 @@ function init() {
       else if (tag.group === 'spot') a = cur.spot;
       else if (tag.group === 'measure') a = measure.a && measure.b ? 1 : 0;
       else if (tag.group === 'focus') a = cur.focus;
+      else if (tag.group === 'sun') a = cur.sun;
       tag.el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -50%)`;
       tag.el.style.opacity = a.toFixed(2);
       tag.el.style.visibility = a < 0.03 ? 'hidden' : 'visible';
@@ -600,7 +788,8 @@ function init() {
   window.__showspaceModel = {
     project(x, z) { const r = canvas.getBoundingClientRect(); const q = new THREE.Vector3(x, 0, z).project(camera); return [r.left + (q.x * 0.5 + 0.5) * r.width, r.top + (-q.y * 0.5 + 0.5) * r.height]; },
     get beat() { return beat; },
-    get touring() { return tourOn; },
+    get flat() { return flat; },
+    get sun() { return { on: +cur.sun.toFixed(2), time: fmtTime(sunState.minutes), season: sunState.season, elev: +(sunState.elev * 180 / Math.PI).toFixed(1), range: sunState.range.map(fmtTime), tris: lightGeo.drawRange.count / 3 }; },
     get focused() { return focused?.name || null; },
     get measured() { return measure.fixed ? measureTag.el.textContent : null; },
   };

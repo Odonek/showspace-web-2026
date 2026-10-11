@@ -27,7 +27,7 @@ Zkušební verze nového webu showspace.cz. Živý web zůstává v repozitáři
 
 ## Před spuštěním na showspace.cz
 
-- [ ] Úvod končí vletem do skutečné prohlídky bytu (rámec `.stage__tour` v `index.html`, adresa v `data-src`). V Giraffe360 u té prohlídky vypnout úvodní obrazovku (Edit Tour → Settings → Welcome screen), nastavit výchozí pohled do obývacího pokoje (Tour start view) a do `data-src` vložit přímý odkaz na prohlídku (Tour links), ne na stránku nemovitosti. Pak na živé adrese ověřit, že se prohlídka v rámci načte
+- [ ] Krok „Kam a kdy svítí slunce“ v úvodu: orientace bytu je odečtená z růžice na půdorysu (`NORTH_DEG` v `assets/js/model.js`), výšky oken jsou odhad. Zkontrolovat proti dráze slunce ve 3D půdorysu Giraffe360 a případně upravit
 - [ ] Poslat zkušební poptávku z formuláře a ověřit, že dorazí e-mail (a zkontrolovat měsíční limit ve Formspree)
 - [ ] Potvrdit, jestli jsou ceny v ceníku s DPH, nebo bez DPH, a doplnit to k cenám
 - [ ] Potvrdit lhůtu dodání (na webu je 10 pracovních dnů, v business plánu 72 hodin)

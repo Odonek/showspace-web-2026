@@ -264,8 +264,6 @@ if (viewer && typeof viewer.showModal === 'function') {
       frame.innerHTML = '';
       const ifr = document.createElement('iframe');
       ifr.src = el.href;
-      // přímé odkazy na prohlídku jdou u Giraffe360 otevřít bez sledování a cookies
-      if (el.hostname === 'tour.giraffe360.com' && !el.search) ifr.src = `${el.href}?nocookie`;
       ifr.title = `Virtuální prohlídka: ${el.dataset.title}`;
       ifr.allow = 'fullscreen; xr-spatial-tracking; gyroscope; accelerometer';
       ifr.allowFullscreen = true;
