@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtuální prohlídky hotelů, fitness a provozoven – ShowSpace</title>
+<meta name="description" content="Hosté a zákazníci si váš prostor projdou z mobilu ještě před návštěvou. Prohlédněte si hotové prohlídky hotelů, fitness, wellness a kaváren.">
+<!-- ZKUŠEBNÍ VERZE: před spuštěním na showspace.cz tento řádek smazat, jinak web Google nezobrazí -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#161d2b">
+<meta property="og:title" content="Virtuální prohlídky hotelů, fitness a provozoven – ShowSpace">
+<meta property="og:description" content="Hosté a zákazníci si váš prostor projdou z mobilu ještě před návštěvou. Prohlédněte si hotové prohlídky hotelů, fitness, wellness a kaváren.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/img/byt-svitavy.webp">
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="preload" href="assets/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="ShowSpace – úvodní stránka"><img src="assets/img/logo.png" alt="ShowSpace" width="211" height="34"></a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
+    <nav class="nav" id="nav" aria-label="Hlavní">
+      <a href="index.html">Pro makléře</a>
+      <a href="prostory.html" aria-current="page">Další prostory</a>
+      <a href="cenik.html">Ceník</a>
+      <a href="tel:+420730167681">730 167 681</a>
+      <a class="btn" href="#kontakt">Poptat prohlídku</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<section class="page-hero">
+  <div class="wrap">
+    <h1>Host si prostor projde ještě před rezervací</h1>
+    <p class="lead">Hotel, fitness, wellness nebo kavárnu naskenujeme a prohlídku umístíme na váš web i do Google Street View.</p>
+    <div class="btn-row">
+      <a class="btn" href="#kontakt">Poptat prohlídku</a>
+      <a class="btn btn--ghost" href="#reference">Hotové prohlídky</a>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="reference">
+  <div class="wrap">
+    <div class="section__head">
+      <h2>Hotové prohlídky</h2>
+      <p class="lead">Každá se otevře v novém okně. Vyberte si typ prostoru, který je vám nejblíž.</p>
+    </div>
+    <div class="filters" role="group" aria-label="Typ prostoru">
+      <button type="button" data-filter="vse" aria-pressed="true">Vše</button>
+      <button type="button" data-filter="ubytovani" aria-pressed="false">Ubytování</button>
+      <button type="button" data-filter="fitness" aria-pressed="false">Fitness a sport</button>
+      <button type="button" data-filter="wellness" aria-pressed="false">Wellness a bazény</button>
+      <button type="button" data-filter="gastro" aria-pressed="false">Gastro</button>
+      <button type="button" data-filter="nemovitosti" aria-pressed="false">Nemovitosti</button>
+      <button type="button" data-filter="ostatni" aria-pressed="false">Ostatní</button>
+    </div>
+    <p class="note" data-ref-count aria-live="polite" style="margin-bottom:1.25rem">Všech 11 prohlídek</p>
+    <ul class="refs">
+      <li data-cat="nemovitosti">
+        <a class="ref" href="https://my.giraffe360.com/p/d85pdb1" target="_blank" rel="noopener">
+          <div class="finder"><img src="assets/img/byt-svitavy.webp" srcset="assets/img/byt-svitavy-800.webp 800w, assets/img/byt-svitavy.webp 1600w" sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 33vw" width="1600" height="1200" alt="Prázdný pokoj bytu s výhledem do zahrady" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Byt 3+1 k pronájmu</h3>
+            <p>Svitavy, Nemovitost</p>
+            <span class="ref__open">Otevřít prohlídku</span>
+          </div>
+        </a>
+      </li>
+      <li data-cat="ubytovani">
+        <a class="ref" href="https://my.giraffe360.com/p/9a43jc2" target="_blank" rel="noopener">
+          <div class="finder"><img src="assets/img/forea-hotel.webp" srcset="assets/img/forea-hotel-800.webp 800w, assets/img/forea-hotel.webp 1600w" sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 33vw" width="1600" height="1200" alt="Hotelový pokoj s manželskou postelí" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Forea – hotel</h3>
+            <p>Lanškroun, Ubytování</p>
+            <span class="ref__open">Otevřít prohlídku</span>
+          </div>
+        </a>
+      </li>
+      <li data-cat="ubytovani">
+        <a class="ref" href="https://my.giraffe360.com/p/8r5dl6q" target="_blank" rel="noopener">
+          <div class="finder"><img src="assets/img/aparthotel-svitavy.webp" srcset="assets/img/aparthotel-svitavy-800.webp 800w, assets/img/aparthotel-svitavy.webp 1600w" sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 33vw" width="1600" height="1200" alt="Pokoj aparthotelu s trámovým stropem" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Aparthotel</h3>
+            <p>Svitavy, Ubytování</p>
+            <span class="ref__open">Otevřít prohlídku</span>
+          </div>
+        </a>
+      </li>
+      <li data-cat="ubytovani">
+        <a class="ref" href="https://tour.giraffe360.com/houseboat-prague-vltava/" target="_blank" rel="noopener">
+          <div class="finder"><img src="assets/img/houseboat-praha.webp" srcset="assets/img/houseboat-praha-800.webp 800w, assets/img/houseboat-praha.webp 1600w" sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 33vw" width="1600" height="1200" alt="Terasa houseboatu s výhledem na Vltavu" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Houseboat</h3>
+            <p>Praha, Ubytování</p>
+            <span class="ref__open">Otevřít prohlídku</span>
+          </div>
+        </a>
+      </li>
+      <li data-cat="fitness">
+        <a class="ref" href="https://tour.giraffe360.com/goldenfitness-ceskatrebova/" target="_blank" rel="noopener">
+          <div class="finder"><img src="assets/img/golden-fitness-ceska-trebova.webp" srcset="assets/img/golden-fitness-ceska-trebova-800.webp 800w, assets/img/golden-fitness-ceska-trebova.webp 1600w" sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 33vw" width="1600" height="1200" alt="Posilovna s činkami a schodištěm" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Golden Fitness</h3>
+            <p>Česká Třebová, Fitness a sport</p>
+            <span class="ref__open">Otevřít prohlídku</span>
+          </div>
+        </a>
+      </li>
+      <li data-cat="fitness">
+        <a class="ref" href="https://my.giraffe360.com/p/0iw6h6m" target="_blank" rel="noopener">
+          <div class="finder"><img src="assets/img/golden-fitness-litomysl.webp" srcset="assets/img/golden-fitness-litomysl-800.webp 800w, assets/img/golden-fitness-litomysl.webp 1600w" sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 33vw" width="1600" height="1200" alt="Recepce fitness centra" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Golden Fitness</h3>
+            <p>Litomyšl, Fitness a sport</p>
+            <span class="ref__open">Otevřít prohlídku</span>
+          </div>
+        </a>
+      </li>
+      <li data-cat="fitness">
+        <a class="ref" href="https://my.giraffe360.com/p/b060mxz" target="_blank" rel="noopener">
+          <div class="finder"><img src="assets/img/forea-sportcentrum.webp" srcset="assets/img/forea-sportcentrum-800.webp 800w, assets/img/forea-sportcentrum.webp 1600w" sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 33vw" width="1600" height="1200" alt="Sportovní hala s kurty" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Forea – sportcentrum</h3>
+            <p>Lanškroun, Fitness a sport</p>
+            <span class="ref__open">Otevřít prohlídku</span>
+          </div>
+        </a>
+      </li>
+      <li data-cat="wellness">
+        <a class="ref" href="https://my.giraffe360.com/p/w8d850p" target="_blank" rel="noopener">
+          <div class="finder"><img src="assets/img/forea-wellness.webp" srcset="assets/img/forea-wellness-800.webp 800w, assets/img/forea-wellness.webp 1600w" sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 33vw" width="1600" height="1200" alt="Wellness se saunami a ochlazovacím bazénkem" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Forea – wellness</h3>
+            <p>Lanškroun, Wellness a bazény</p>
+            <span class="ref__open">Otevřít prohlídku</span>
+          </div>
+        </a>
+      </li>
+      <li data-cat="wellness">
+        <a class="ref" href="https://tour.giraffe360.com/krytyplaveckybazensvitavy/" target="_blank" rel="noopener">
+          <div class="finder"><img src="assets/img/bazen-svitavy.webp" srcset="assets/img/bazen-svitavy-800.webp 800w, assets/img/bazen-svitavy.webp 1600w" sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 33vw" width="1600" height="1200" alt="Budova krytého bazénu ve Svitavách" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Krytý plavecký bazén</h3>
+            <p>Svitavy, Wellness a bazény</p>
+            <span class="ref__open">Otevřít prohlídku</span>
+          </div>
+        </a>
+      </li>
+      <li data-cat="gastro">
+        <a class="ref" href="https://my.giraffe360.com/p/9kynbzm" target="_blank" rel="noopener">
+          <div class="finder"><img src="assets/img/forea-cafe.webp" srcset="assets/img/forea-cafe-800.webp 800w, assets/img/forea-cafe.webp 1600w" sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 33vw" width="1600" height="1200" alt="Kavárna se stolky a barem" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Forea – café, bistro a music bar</h3>
+            <p>Lanškroun, Gastro</p>
+            <span class="ref__open">Otevřít prohlídku</span>
+          </div>
+        </a>
+      </li>
+      <li data-cat="ostatni">
+        <a class="ref" href="https://my.giraffe360.com/p/poenfso" target="_blank" rel="noopener">
+          <div class="finder"><img src="assets/img/domov-seniori-vendoli.webp" srcset="assets/img/domov-seniori-vendoli-800.webp 800w, assets/img/domov-seniori-vendoli.webp 1600w" sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 33vw" width="1600" height="1200" alt="Dvůr domova pro seniory s dřevěným obkladem" loading="lazy" decoding="async"></div>
+          <div class="ref__body">
+            <h3>Domov pro seniory</h3>
+            <p>Vendolí, Ostatní</p>
+            <span class="ref__open">Otevřít prohlídku</span>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="section section--room">
+  <div class="wrap">
+    <div class="section__head">
+      <h2>Pro jaké provozy to dává smysl</h2>
+    </div>
+    <dl class="types">
+      <div><dt>Hotely, penziony, apartmány</dt><dd>Host vidí přesně ten pokoj, který si rezervuje, i cestu na recepci a do restaurace.</dd></div>
+      <div><dt>Fitness a sportoviště</dt><dd>Nový člen si projde zóny, stroje a šatny dřív, než poprvé přijde.</dd></div>
+      <div><dt>Wellness a bazény</dt><dd>Ukážete atmosféru, kterou fotka nezachytí: uspořádání saun, odpočíváren a bazénů.</dd></div>
+      <div><dt>Kavárny, restaurace, bary</dt><dd>Kdo plánuje oslavu nebo firemní akci, si vybere stůl a salonek na dálku.</dd></div>
+      <div><dt>Veřejné a sociální služby</dt><dd>Rodiny si domov pro seniory nebo jiné zařízení projdou v klidu z domu.</dd></div>
+      <div><dt>Jiný prostor</dt><dd>Showroom, coworking, sál k pronájmu. Napište nám, co máte.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section__head">
+      <h2>Co je v ceně</h2>
+      <p class="lead">Stejný základ jako u nemovitostí, navíc umístění do Google Street View.</p>
+    </div>
+    <ul class="included">
+      <li>3D prohlídka, kterou vložíte na web i sociální sítě</li>
+      <li>Umístění prohlídky do Google Street View</li>
+      <li>2D půdorys z LiDARu s přesností 98 %</li>
+      <li>Fotografie ve vysokém rozlišení</li>
+      <li>Informační body: ceník, otevírací doba, popis zón</li>
+      <li>Samostatná stránka s prezentací prostoru</li>
+      <li>Hosting prohlídky bez měsíčního poplatku</li>
+      <li>Dodání do týdne od skenování</li>
+    </ul>
+    <p style="margin-top:1.75rem"><a class="btn btn--ghost" href="cenik.html#provozy">Ceník pro provozy</a></p>
+  </div>
+</section>
+
+</main>
+<section class="section section--wall" id="kontakt">
+  <div class="wrap contact">
+    <div>
+      <h2>Napište, co chcete naskenovat</h2>
+      <p class="lead">Ozveme se do 24 hodin a domluvíme termín.</p>
+      <ul class="contact__list">
+        <li><span>Telefon</span><a href="tel:+420730167681">+420 730 167 681</a></li>
+        <li><span>E-mail</span><a href="mailto:info@showspace.cz">info@showspace.cz</a></li>
+        <li><span>Sídlo</span><address>Petrusova 2213/15, 568 02 Svitavy</address></li>
+      </ul>
+    </div>
+    <form class="form" action="https://formspree.io/f/mjkorjrk" method="POST">
+      <label class="full">Jméno a příjmení
+        <input name="jmeno" autocomplete="name" required>
+      </label>
+      <label>E-mail
+        <input name="email" type="email" autocomplete="email" required>
+      </label>
+      <label>Telefon
+        <input name="telefon" type="tel" autocomplete="tel">
+      </label>
+      <label class="full">Co chcete naskenovat
+        <select name="prostor" id="f-prostor">
+            <option value="byt">Byt nebo dům na prodej či pronájem</option>
+            <option value="ubytovani" selected>Hotel, penzion, apartmán</option>
+            <option value="sport">Fitness, sportoviště, wellness</option>
+            <option value="gastro">Kavárna, restaurace, bar</option>
+            <option value="jine">Jiný prostor</option>
+        </select>
+      </label>
+      <label class="full">Zpráva
+        <textarea name="zprava" id="f-zprava" rows="4" placeholder="Kde prostor je, jak je velký a do kdy prohlídku potřebujete."></textarea>
+      </label>
+      <div class="full form__foot">
+        <button class="btn btn--light" type="submit">Odeslat poptávku</button>
+        <p class="note">Odesláním souhlasíte se <a href="gdpr.html">zpracováním údajů</a> pro vyřízení poptávky.</p>
+      </div>
+    </form>
+  </div>
+</section>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>© <span data-year>2026</span> ShowSpace, IČO 23631741, DIČ CZ23631741. Spisová značka C 55194, KS Hradec Králové.</p>
+    <ul>
+      <li><a href="https://www.instagram.com/showspace.cz/" target="_blank" rel="noopener">Instagram</a></li>
+      <li><a href="https://www.facebook.com/people/Show-Space/61579327674807/" target="_blank" rel="noopener">Facebook</a></li>
+      <li><a href="https://www.tiktok.com/@show.space360" target="_blank" rel="noopener">TikTok</a></li>
+      <li><a href="gdpr.html">Ochrana osobních údajů</a></li>
+    </ul>
+  </div>
+</footer>
+<script type="module" src="assets/js/site.js"></script>
+</body>
+</html>
