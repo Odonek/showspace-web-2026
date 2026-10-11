@@ -789,3 +789,11 @@ body { background: var(--paper); }
   .stage__view { inset: 0 0 0 39%; }
   .stage__copy { width: min(28rem, 32vw); }
 }
+
+/* malý řádek s klíčovým sdělením nad hlavním nadpisem (součást H1 kvůli vyhledávačům) */
+.kicker { display: block; font-stretch: 105%; font-weight: 650; font-size: 0.95rem; line-height: 1.3; letter-spacing: 0; color: var(--slate); margin-bottom: 0.8rem; }
+.page-hero .kicker { color: var(--accent); }
+@media (max-width: 860px) { .kicker { font-size: 0.82rem; margin-bottom: 0.4rem; } }
+
+/* střední šířky: v hlavičce musí zbýt místo */
+@media (max-width: 1080px) and (min-width: 861px) { .nav { gap: 0.9rem; } .nav > a[href^="tel:"] { display: none; } }
