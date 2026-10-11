@@ -1,89 +1,95 @@
 // ShowSpace – interaktivní 3D model na úvodní stránce.
 //
-// Model je postavený podle půdorysu z naší zakázky Houseboat, Praha
-// (interiér 23,6 m²: obytný prostor 21,6 m² a koupelna). Rozměry jsou v metrech
-// a vycházejí z měřítka půdorysu; terasa je doplněná podle fotek a je jen orientační.
+// Model vychází z půdorysu naší zakázky: byt 3+1 ve Svitavách (63,7 m²).
+// Podlaha je přímo obrázek půdorysu z Giraffe360, stěny jsou z něj odvozené,
+// takže pohled shora vypadá přesně jako 2D půdorys. Rozměry jsou v metrech.
 //
-// Scrollem se z půdorysu zvednou stěny. Podle kroku pak model reaguje jinak:
-//   krok 1 – kliknutím na část prostoru do ní kamera vletí
+// Průběh při scrollu:
+//   krok 0 – statický 2D půdorys
+//   krok 1 – stěny se zvednou do 3D, kliknutím na místnost do ní kamera vletí
 //   krok 2 – kliknutím na dvě místa se změří vzdálenost
-//   krok 3 – informační body s popiskem
+//   krok 3 – kamera přiblíží obývací pokoj a ukáže informační body
 import * as THREE from '../vendor/three.module.min.js';
 
 const stage = document.querySelector('.stage');
 const view = stage?.querySelector('.stage__view');
 const canvas = view?.querySelector('canvas');
 const overlay = view?.querySelector('.stage__overlay');
+const planImg = view?.querySelector('.stage__fallback img');
 const beats = stage ? [...stage.querySelectorAll('.beat')] : [];
 const dots = stage ? [...stage.querySelectorAll('.stage__progress button')] : [];
 const resetBtn = stage?.querySelector('.stage__reset');
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const C = {
-  wall: 0xf7f7f4, cap: 0x141c2b, floor: 0xf9dcbd, bath: 0xc9d6ea, deck: 0xc58a55, floorHover: 0xeae151,
-  slate: 0x415a77, white: 0xffffff, wood: 0xc99b6b, linen: 0xe9e4d2, ink: 0x18212f, sofa: 0xe6c93f, glass: 0xa9c6e3,
-};
+const C = { wall: 0xf6f5f1, cap: 0x1c232e, hover: 0xeae151, white: 0xffffff, step: 0xe6cdbf, ink: 0x141c2b, glass: 0xa9c6e3, accent: 0xeae151 };
 
-// vnitřní rozměr: 11,47 × 2,145 m
-const L = 11.47, W = 2.145;
-
-// klikací části prostoru
-const ROOMS = [
-  { name: 'Obývací část', rects: [[0, 0, 5.3, W]], label: [2.6, 1.45] },
-  { name: 'Kuchyňka a vstup', rects: [[5.3, 0, 6.81, W], [6.81, 1.5, 8.81, W]], label: [5.9, 1.75] },
-  { name: 'Koupelna', area: '2,0 m²', rects: [[6.97, 0.16, 8.67, 1.36]], label: [7.82, 0.76], color: 'bath' },
-  { name: 'Spací část', rects: [[8.81, 0, L, W]], label: [10.0, 1.8] },
-  { name: 'Terasa', rects: [[0.4, 2.5, 5.7, 3.95]], label: [3.05, 3.5], color: 'deck', outside: true },
-];
-
-// [x1, z1, x2, z2, tloušťka, druh] – mezery jsou dveře, 'glass' jsou okna
+// obrázek půdorysu položený na zem: [x1, z1, x2, z2] v metrech
+const PLANE = [-0.154, -0.925, 9.989, 9.518];
+// stěny odvozené z půdorysu: [x1, z1, x2, z2]
 const WALLS = [
-  // horní stěna s okny
-  [-0.17, -0.175, 6.13, -0.175, 0.35], [6.13, -0.175, 6.63, -0.175, 0.12, 'glass'], [6.63, -0.175, 9.33, -0.175, 0.35],
-  [9.33, -0.175, 10.99, -0.175, 0.12, 'glass'], [10.99, -0.175, 11.84, -0.175, 0.35],
-  // spodní stěna: okno, posuvné dveře na terasu, okno, vchod
-  [-0.17, 2.325, 0.46, 2.325, 0.36], [0.46, 2.325, 1.89, 2.325, 0.12, 'glass'], [3.62, 2.325, 5.3, 2.325, 0.12, 'glass'], [6.14, 2.325, 11.84, 2.325, 0.36],
-  // čela
-  [11.655, -0.35, 11.655, 2.5, 0.37], [-0.085, 0, -0.085, W, 0.1, 'glass'],
-  // koupelna
-  [6.89, 0, 6.89, 1.43, 0.16], [8.74, 0, 8.74, 1.43, 0.16], [6.81, 1.43, 7.77, 1.43, 0.14], [8.3, 1.43, 8.81, 1.43, 0.14], [6.97, 0.08, 8.67, 0.08, 0.16],
+  [0.011, -0.004, 4.751, 0.278], [5.703, -0.004, 9.826, 0.154], [-0.007, 0.013, 0.011, 1.493], [9.826, 0.013, 9.844, 3.626],
+  [5.72, 0.154, 9.826, 0.278], [0.011, 0.278, 0.275, 1.493], [4.187, 0.278, 4.681, 2.815], [9.562, 0.278, 9.826, 3.626],
+  [4.681, 2.674, 4.769, 2.815], [5.72, 2.674, 9.562, 2.815], [6.108, 2.815, 6.478, 2.833], [6.778, 2.815, 7.535, 2.833],
+  [8.575, 2.815, 9.562, 2.833], [6.108, 2.833, 6.46, 2.903], [6.126, 2.903, 6.46, 2.921], [6.319, 2.921, 6.46, 3.361],
+  [0.011, 3.555, 0.275, 5.035], [-0.007, 3.573, 0.011, 5.018], [0.275, 3.784, 4.839, 3.925], [4.187, 3.925, 4.839, 5.018],
+  [6.319, 4.207, 8.046, 4.348], [6.319, 4.348, 6.478, 4.366], [7.659, 4.348, 8.046, 4.366], [6.319, 4.366, 6.46, 4.436],
+  [7.676, 4.366, 8.046, 5.67], [9.562, 4.471, 9.826, 6.515], [9.826, 4.489, 9.844, 6.515], [7.659, 4.524, 7.676, 4.93],
+  [4.187, 5.018, 4.681, 5.053], [6.319, 5.194, 6.478, 5.687], [6.478, 5.3, 6.919, 5.67], [7.659, 5.3, 7.676, 5.67],
+  [8.046, 5.3, 8.064, 5.67], [5.808, 5.317, 6.319, 6.322], [6.919, 5.317, 7.659, 5.67], [8.064, 5.317, 9.562, 5.67],
+  [6.319, 5.687, 6.46, 6.322], [4.205, 6.004, 4.663, 7.167], [4.187, 6.022, 4.205, 7.167], [4.663, 6.022, 4.681, 7.167],
+  [0.011, 6.075, 0.275, 7.485], [-0.007, 6.093, 0.011, 7.467], [5.791, 6.163, 5.808, 6.322], [0.275, 6.181, 4.187, 6.322],
+  [4.681, 6.181, 4.786, 6.322], [5.65, 6.181, 5.791, 6.322], [4.205, 8.013, 4.663, 9.37], [4.187, 8.031, 4.205, 9.37],
+  [4.663, 8.031, 4.681, 9.37], [9.562, 8.718, 9.826, 9.37], [9.826, 8.736, 9.844, 9.352], [0.011, 9.053, 0.275, 9.37],
+  [-0.007, 9.07, 0.011, 9.352], [0.275, 9.088, 0.293, 9.37], [1.844, 9.088, 4.187, 9.37], [4.681, 9.088, 9.562, 9.37],
+];
+// okna a prosklené dveře v obvodové stěně
+const GLASS = [[0.06, 1.487, 0.2, 3.546], [0.06, 5.033, 0.2, 6.079], [0.06, 7.467, 0.2, 9.053], [0.3, 9.16, 1.841, 9.3], [9.63, 6.52, 9.77, 8.722]];
+
+// místnosti (pro klikání a zvýraznění); názvy a plochy jsou z půdorysu
+const ROOMS = [
+  { name: 'Pokoj', area: '13,7 m²', rects: [[0.27, 0.27, 4.19, 3.78]] },
+  { name: 'Pokoj', area: '8,6 m²', rects: [[0.27, 3.92, 4.19, 6.17]] },
+  { name: 'Kuchyňský kout + jídelna', area: '10,9 m²', rects: [[0.27, 6.32, 4.44, 9.08]] },
+  { name: 'Obývací pokoj', area: '15,9 m²', rects: [[4.67, 6.32, 9.56, 9.08], [6.47, 5.67, 9.56, 6.32]], main: true },
+  { name: 'Chodba', area: '4,8 m²', rects: [[4.44, 2.79, 6.33, 5.31], [4.44, 5.31, 5.83, 6.24]] },
+  { name: 'Koupelna', area: '4,9 m²', rects: [[6.4, 2.83, 9.56, 4.2], [8.04, 4.2, 9.56, 5.31]] },
+  { name: 'WC', area: '1,1 m²', rects: [[6.4, 4.36, 7.67, 5.31]] },
+  { name: 'Vstup a schodiště', rects: [[4.67, 0.27, 7.76, 2.68]] },
 ];
 
-// kvádry: [x1, z1, x2, z2, výška, barva, odspodu, otočení ve stupních]
+// zařizovací předměty zakreslené v půdorysu: [x1, z1, x2, z2, výška]
 const BOXES = [
-  [0.61, 0.02, 2.37, 0.9, 0.42, 'sofa'], [0.61, 0.02, 2.37, 0.24, 0.78, 'sofa'],       // pohovka + opěradlo
-  [2.72, 0.24, 3.44, 0.98, 0.4, 'slate', 0, -15], [2.66, 0.2, 3.38, 0.4, 0.75, 'slate', 0, -15], // křeslo
-  [3.94, 0.02, 4.97, 0.53, 0.85, 'wood'],                                              // komoda
-  [6.21, 0, 6.81, 1.5, 0.9, 'white'], [6.19, 0, 6.83, 1.52, 0.04, 'wood', 0.9],        // kuchyňka + deska
-  [6.97, 0.16, 7.7, 1.36, 0.08, 'white'],                                              // sprchová vanička
-  [7.92, 0.2, 8.3, 0.72, 0.42, 'white'],                                               // WC
-  [8.4, 1.0, 8.67, 1.36, 0.85, 'white'],                                               // umyvadlo
-  [9.54, 0.02, 11.12, 1.48, 0.45, 'white'], [9.6, 0.1, 10.3, 0.5, 0.12, 'linen', 0.45], [9.6, 0.95, 10.3, 1.35, 0.12, 'linen', 0.45], // postel + polštáře
-  [11.12, 0.02, L, 1.48, 0.95, 'wood'],                                                // čelo s policemi
-  [1.2, 2.95, 1.75, 3.5, 0.45, 'slate'], [2.5, 2.95, 3.05, 3.5, 0.45, 'slate'], [1.95, 3.05, 2.3, 3.4, 0.4, 'wood'], // terasa: židle a stolek
+  [0.27, 8.47, 4.19, 9.08, 0.9],   // kuchyňská linka
+  [8.57, 2.83, 9.55, 3.58, 0.08],  // sprchová vanička
+  [6.79, 2.83, 7.52, 3.26, 0.85],  // umyvadlo
+  [7.1, 4.5, 7.6, 4.85, 0.42],     // WC
+  [6.47, 5.05, 6.9, 5.28, 0.8],    // umývátko
 ];
-// ukázkové kóty: [x1, z1, x2, z2, text] – délka a šířka interiéru podle půdorysu
+
+// ukázkové kóty: [x1, z1, x2, z2, text] – z měřítka půdorysu
 const DIMS = [
-  [0.05, 1.85, L - 0.05, 1.85, '11,5 m'],
-  [5.0, 0.05, 5.0, W - 0.05, '2,1 m'],
+  [0.3, 3.35, 4.16, 3.35, '3,9 m'],
+  [4.7, 8.6, 9.53, 8.6, '4,9 m'],
+  [3.85, 6.35, 3.85, 8.44, '2,1 m'],
 ];
 
 const SPOTS = [
-  { at: [4.3, 0.4, 3.3], title: 'Terasa', text: 'Krytá terasa s výhledem na Vltavu.' },
-  { at: [7.8, 0.8, 0.75], title: 'Koupelna', text: 'Sprchový kout, WC a umyvadlo.' },
-  { at: [10.3, 0.75, 0.75], title: 'Spací část', text: 'Manželská postel s úložným čelem.' },
+  { at: [7.2, 0.5, 7.7], title: 'Obývací pokoj', text: '15,9 m², dvoukřídlé dveře.' },
+  { at: [2.2, 1.0, 8.78], title: 'Kuchyňský kout + jídelna', text: '10,9 m², linka s dřezem a varnou deskou.' },
+  { at: [9.05, 0.4, 3.2], title: 'Koupelna', text: '4,9 m², sprchový kout a umyvadlo.' },
 ];
 
 const HINTS = [
-  'Houseboat, Praha: model podle půdorysu z naší zakázky',
-  'Klikněte na část prostoru. Tažením model otočíte.',
+  'Byt 3+1, Svitavy, 63,7 m²: půdorys z naší zakázky',
+  'Klikněte na místnost. Tažením model otočíte.',
   'Klikněte na dvě místa a změřte vzdálenost.',
   'Klikněte na bod v modelu.',
 ];
 
-const CENTER = new THREE.Vector3(5.7, 0, 1.75);
-const WALL_H = 1.25;
+const CENTER = new THREE.Vector3((PLANE[0] + PLANE[2]) / 2, 0, (PLANE[1] + PLANE[3]) / 2);
+const PLANE_W = PLANE[2] - PLANE[0], PLANE_H = PLANE[3] - PLANE[1];
+const WALL_H = 1.3;
 
 function supportsWebGL() {
   try {
@@ -112,96 +118,106 @@ function init() {
 
   scene.add(new THREE.HemisphereLight(0xffffff, 0xe6ebf1, 2.3));
   const sun = new THREE.DirectionalLight(0xfff4e6, 1.5);
-  sun.position.set(-3, 13, -4);
+  sun.position.set(CENTER.x - 8, 13, CENTER.z - 8);
   sun.target.position.copy(CENTER);
   sun.castShadow = true;
   sun.shadow.mapSize.set(1024, 1024);
-  Object.assign(sun.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 40 });
+  Object.assign(sun.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 45 });
   sun.shadow.bias = -0.0006;
-  sun.shadow.radius = 6;
   scene.add(sun, sun.target);
 
-  const std = (c, rough = 0.9) => new THREE.MeshStandardMaterial({ color: C[c], roughness: rough, metalness: 0 });
-  const mats = { wall: std('wall'), sofa: std('sofa'), slate: std('slate'), white: std('white', 0.7), wood: std('wood'), linen: std('linen', 1) };
-  const glassMat = new THREE.MeshStandardMaterial({ color: C.glass, roughness: 0.2, transparent: true, opacity: 0.55 });
-  const capMat = new THREE.MeshBasicMaterial({ color: C.cap });
+  // ---- podlaha = obrázek půdorysu (bez osvětlení, aby barvy seděly s 2D) ----
+  const planGeo = new THREE.PlaneGeometry(PLANE_W, PLANE_H);
+  planGeo.rotateX(-Math.PI / 2);
+  const planMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const plan = new THREE.Mesh(planGeo, planMat);
+  plan.position.copy(CENTER);
+  scene.add(plan);
+  let textureReady = false;
+  new THREE.TextureLoader().load(new URL('../img/byt-pudorys-textura.webp', import.meta.url).href, (tex) => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    planMat.map = tex;
+    planMat.needsUpdate = true;
+    textureReady = true;
+    needsFrame = true;
+  });
+  // průhledná vrstva, která jen přijímá stíny stěn
+  const shadowMat = new THREE.ShadowMaterial({ opacity: 0 });
+  const shadowPlane = new THREE.Mesh(planGeo, shadowMat);
+  shadowPlane.position.set(CENTER.x, 0.004, CENTER.z);
+  shadowPlane.receiveShadow = true;
+  scene.add(shadowPlane);
 
-  // měkký stín pod celým bytem
-  const blobCanvas = document.createElement('canvas');
-  blobCanvas.width = blobCanvas.height = 256;
-  const bctx = blobCanvas.getContext('2d');
-  const grad = bctx.createRadialGradient(128, 128, 40, 128, 128, 128);
-  grad.addColorStop(0, 'rgba(22,29,43,0.2)');
-  grad.addColorStop(1, 'rgba(22,29,43,0)');
-  bctx.fillStyle = grad;
-  bctx.fillRect(0, 0, 256, 256);
-  const blobMat = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(blobCanvas), transparent: true, opacity: 0, depthWrite: false });
-  const blobGeo = new THREE.PlaneGeometry(15, 7.5);
-  blobGeo.rotateX(-Math.PI / 2);
-  const blob = new THREE.Mesh(blobGeo, blobMat);
-  blob.position.set(CENTER.x + 0.3, -0.03, CENTER.z + 0.5);
-  scene.add(blob);
-
-  // podlahy – každá místnost má vlastní materiál kvůli zvýraznění
-  const floorMeshes = [];
-  ROOMS.forEach((room, i) => {
-    room.base = new THREE.Color(C[room.color || 'floor']);
-    room.mat = new THREE.MeshStandardMaterial({ color: room.base.clone(), roughness: 1 });
+  // ---- místnosti: neviditelné plochy pro klikání + žluté zvýraznění ----
+  const pickMeshes = [];
+  ROOMS.forEach((room) => {
+    room.mat = new THREE.MeshBasicMaterial({ color: C.hover, transparent: true, opacity: 0, depthWrite: false });
     room.glow = 0;
     let minX = Infinity, minZ = Infinity, maxX = -Infinity, maxZ = -Infinity;
     room.rects.forEach(([x1, z1, x2, z2]) => {
       const g = new THREE.PlaneGeometry(x2 - x1, z2 - z1);
       g.rotateX(-Math.PI / 2);
       const mesh = new THREE.Mesh(g, room.mat);
-      mesh.position.set((x1 + x2) / 2, room.color === 'bath' ? 0.004 : room.outside ? -0.02 : 0, (z1 + z2) / 2);
-      mesh.receiveShadow = true;
+      mesh.position.set((x1 + x2) / 2, 0.012, (z1 + z2) / 2);
       mesh.userData.room = room;
       scene.add(mesh);
-      floorMeshes.push(mesh);
+      pickMeshes.push(mesh);
       minX = Math.min(minX, x1); minZ = Math.min(minZ, z1); maxX = Math.max(maxX, x2); maxZ = Math.max(maxZ, z2);
     });
     room.center = [(minX + maxX) / 2, (minZ + maxZ) / 2];
     room.size = Math.max(maxX - minX, maxZ - minZ);
   });
-  const hoverColor = new THREE.Color(C.floorHover);
+  const mainRoom = ROOMS.find((r) => r.main);
 
-  // stěny rostou odspodu, tmavé „čepičky“ drží kresbu půdorysu i při pohledu shora
+  // ---- stěny rostou odspodu; tmavé „čepičky“ mají barvu stěn v půdorysu ----
+  const wallMat = new THREE.MeshStandardMaterial({ color: C.wall, roughness: 0.9 });
+  const capMat = new THREE.MeshBasicMaterial({ color: C.cap });
+  const glassMat = new THREE.MeshStandardMaterial({ color: C.glass, roughness: 0.2, transparent: true, opacity: 0.55 });
   const walls = new THREE.Group();
   const caps = new THREE.Group();
-  WALLS.forEach(([x1, z1, x2, z2, t, kind]) => {
-    const horizontal = z1 === z2;
-    const glass = kind === 'glass';
-    const len = (horizontal ? x2 - x1 : z2 - z1) + (glass ? 0 : 0);
-    const sx = horizontal ? len : t, sz = horizontal ? t : len;
+  const addWall = ([x1, z1, x2, z2], mat, withCap) => {
+    const sx = x2 - x1, sz = z2 - z1;
     const g = new THREE.BoxGeometry(sx, WALL_H, sz);
     g.translate(0, WALL_H / 2, 0);
-    const mesh = new THREE.Mesh(g, glass ? glassMat : mats.wall);
+    const mesh = new THREE.Mesh(g, mat);
     mesh.position.set((x1 + x2) / 2, 0, (z1 + z2) / 2);
-    mesh.castShadow = !glass;
-    mesh.receiveShadow = !glass;
+    mesh.castShadow = withCap;
+    mesh.receiveShadow = withCap;
     walls.add(mesh);
-    // okna mají v půdorysu jen tenkou linku, stěny plnou
-    const cap = new THREE.Mesh(new THREE.BoxGeometry(sx + 0.005, 0.045, glass ? Math.min(sz, 0.06) : sz + 0.005), capMat);
-    if (glass && !horizontal) cap.scale.set(0.6, 1, 1);
-    cap.position.set((x1 + x2) / 2, 0, (z1 + z2) / 2);
-    caps.add(cap);
-  });
+    if (withCap) {
+      const cap = new THREE.Mesh(new THREE.BoxGeometry(sx + 0.004, 0.04, sz + 0.004), capMat);
+      cap.position.set((x1 + x2) / 2, 0, (z1 + z2) / 2);
+      caps.add(cap);
+    }
+  };
+  WALLS.forEach((w) => addWall(w, wallMat, true));
+  GLASS.forEach((w) => addWall(w, glassMat, false));
   scene.add(walls, caps);
 
-  // vybavení
-  const furniture = new THREE.Group();
-  BOXES.forEach(([x1, z1, x2, z2, h, c, y = 0, turn = 0]) => {
+  // ---- zařizovací předměty a schodiště ----
+  const things = new THREE.Group();
+  const white = new THREE.MeshStandardMaterial({ color: C.white, roughness: 0.7 });
+  const stepMat = new THREE.MeshStandardMaterial({ color: C.step, roughness: 1 });
+  const addBox = (x1, z1, x2, z2, h, mat) => {
     const g = new THREE.BoxGeometry(x2 - x1, h, z2 - z1);
-    g.translate(0, h / 2 + y, 0);
-    const mesh = new THREE.Mesh(g, mats[c]);
-    mesh.position.set((x1 + x2) / 2, 0.002, (z1 + z2) / 2);
-    mesh.rotation.y = (turn * Math.PI) / 180;
+    g.translate(0, h / 2, 0);
+    const mesh = new THREE.Mesh(g, mat);
+    mesh.position.set((x1 + x2) / 2, 0.006, (z1 + z2) / 2);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
-    furniture.add(mesh);
-  });
-  scene.add(furniture);
-  // pásky na podlaze (kóty), vždy viditelné i přes stěny
+    things.add(mesh);
+  };
+  BOXES.forEach(([x1, z1, x2, z2, h]) => addBox(x1, z1, x2, z2, h, white));
+  // dvě ramena schodiště po devíti stupních
+  const SX0 = 5.86, SX1 = 7.6, N = 9, sw = (SX1 - SX0) / N;
+  for (let i = 0; i < N; i += 1) {
+    addBox(SX0 + i * sw, 0.3, SX0 + (i + 1) * sw, 1.4, 0.06 + i * 0.06, stepMat);                 // horní rameno stoupá doprava
+    addBox(SX1 - (i + 1) * sw, 1.46, SX1 - i * sw, 2.66, 0.6 + i * 0.06, stepMat);                // spodní pokračuje doleva
+  }
+  scene.add(things);
+
+  // ---- kóty: pásky na podlaze, vždy viditelné i přes stěny ----
   const stripGeo = (x1, z1, x2, z2, w = 0.05) => {
     const dx = x2 - x1, dz = z2 - z1;
     const g = new THREE.PlaneGeometry(Math.hypot(dx, dz) + w, w);
@@ -220,7 +236,7 @@ function init() {
   });
   scene.add(dimLines);
 
-  // vlastní měření
+  // ---- vlastní měření ----
   const measureMat = new THREE.MeshBasicMaterial({ color: C.ink, depthTest: false });
   const measure = { a: null, b: null, fixed: false, line: null, group: new THREE.Group() };
   const dotGeo = new THREE.CircleGeometry(0.13, 24);
@@ -242,7 +258,6 @@ function init() {
     return tag;
   };
   const areaHtml = (r) => (r.area ? `<span>${r.area}</span>` : '');
-  ROOMS.forEach((r) => { r.tag = addTag('tag--room', `${r.name}${areaHtml(r)}`, [r.label[0], 0.05, r.label[1]], 'room'); });
   DIMS.forEach(([x1, z1, x2, z2, text]) => addTag('tag--dim', text, [(x1 + x2) / 2, 0.02, (z1 + z2) / 2], 'dim'));
   const measureTag = addTag('tag--dim tag--measure', '', [0, 0.02, 0], 'measure');
   const focusTag = addTag('tag--focus', '', [0, 0, 0], 'focus');
@@ -269,61 +284,65 @@ function init() {
   }
 
   // ---- stav ----
-  let progress = reduceMotion ? 1 : 0;
-  let beat = reduceMotion ? 1 : 0;       // aktuální krok (určuje, co dělá kliknutí)
-  let width = 1, height = 1, baseRadius = 20;
-  const cur = { rise: reduceMotion ? 1 : 0, az: 0, pol: 0.02, rad: 1, dim: 0, spot: 0, tx: CENTER.x, tz: CENTER.z, focus: 0 };
+  let progress = reduceMotion ? 0.4 : 0;
+  let beat = reduceMotion ? 1 : 0;
+  let width = 1, height = 1, baseRadius = 24;
+  const cur = { rise: reduceMotion ? 1 : 0, az: 0, pol: 0.001, rad: 1, dim: 0, spot: 0, tx: CENTER.x, tz: CENTER.z, focus: 0 };
   const user = { az: 0, pol: 0 };
-  let focused = null, hovered = null;
-  let visible = true, needsFrame = true, lastInteraction = 0, lastTime = 0, shadowRise = -1;
+  let focused = null, hovered = null, autoFocus = false;
+  let visible = true, needsFrame = true, lastInteraction = 0, lastTime = 0, shadowRise = -1, ready = false;
 
   const clamp01 = (v) => Math.min(1, Math.max(0, v));
   const smooth = (a, b, v) => { const t = clamp01((v - a) / (b - a)); return t * t * (3 - 2 * t); };
   const mix = (a, b, t) => a + (b - a) * t;
   const deg = (d) => (d * Math.PI) / 180;
   const fmt = (m) => `${m.toFixed(2).replace('.', ',')} m`;
+  const TAN = Math.tan(deg(15));
 
   function targets(p) {
-    const rise = smooth(0.05, 0.3, p);
+    const rise = smooth(0.08, 0.32, p);
     const s2 = smooth(0.44, 0.56, p);
     const s3 = smooth(0.74, 0.9, p);
-    const tiltRoom = camera.aspect < 1.2 ? 0.95 : 1; // na výšku rozhoduje šířka, model může být blíž
+    const narrow = camera.aspect < 1.2;
     const t = {
       rise,
-      pol: mix(mix(0.02, deg(50), rise), deg(40), s2) + s3 * deg(10),
-      az: mix(mix(0, deg(-32), rise), deg(14), s2) + s3 * deg(12),
-      rad: mix(1, (mix(0.96, 1.04, s2) + s3 * 0.03) * tiltRoom, rise),
-      dim: s2 * (1 - smooth(0.72, 0.78, p)) * (measure.a ? 0 : 1),
+      pol: mix(mix(0.001, deg(46), rise), deg(38), s2),
+      az: mix(mix(0, deg(-26), rise), deg(16), s2) + s3 * deg(14),
+      rad: mix(1, narrow ? 1.16 : 1.42, rise),
+      dim: s2 * (1 - smooth(0.7, 0.76, p)) * (measure.a ? 0 : 1),
       spot: s3,
       tx: CENTER.x,
-      tz: CENTER.z,
+      tz: mix(CENTER.z, CENTER.z + 0.45, rise),
       focus: 0,
     };
     if (focused) {
       t.tx = focused.center[0];
       t.tz = focused.center[1];
-      t.rad = (focused.size * 1.6 + 5) / baseRadius * (camera.aspect < 1.2 ? 1.25 : 1);
-      t.pol = deg(47);
-      t.focus = 1;
+      t.rad = ((focused.size * 2.3 + 9) / baseRadius) * (narrow ? 1.15 : 1);
+      t.pol = deg(44);
+      t.focus = autoFocus ? 0 : 1;
     }
     return t;
   }
 
+  // Kamera se v pohledu shora nastaví tak, aby model přesně překryl statický obrázek půdorysu.
   function resize() {
     const r = view.getBoundingClientRect();
     width = Math.max(1, r.width); height = Math.max(1, r.height);
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
-    const t = Math.tan(deg(15));
-    baseRadius = Math.max(6.2 / (2 * t), 13.5 / (2 * t * camera.aspect));
+    const ir = planImg?.getBoundingClientRect();
+    const shown = ir && ir.height > 20 && !stage.classList.contains('is-static') ? ir.height : Math.min(height * 0.8, (width * 0.86 * PLANE_H) / PLANE_W);
+    baseRadius = (PLANE_H * (height / shown)) / (2 * TAN);
     needsFrame = true;
   }
 
   function setBeat(next) {
     if (next === beat) return;
     beat = next;
-    if (beat !== 1) setFocus(null);
+    autoFocus = beat === 3;
+    setFocus(autoFocus ? mainRoom : null);
     if (beat !== 2) clearMeasure();
     if (beat !== 3) closeSpots();
     setHover(null);
@@ -331,13 +350,13 @@ function init() {
   }
 
   function updateUi() {
-    if (hintEl) hintEl.textContent = focused ? [focused.name, focused.area].filter(Boolean).join(', ') : HINTS[beat] || HINTS[0];
+    if (hintEl) hintEl.textContent = focused && !autoFocus ? [focused.name, focused.area].filter(Boolean).join(', ') : HINTS[beat] || HINTS[0];
     if (resetBtn) {
-      const show = !!focused || (!!measure.a && beat === 2);
+      const show = (!!focused && !autoFocus) || (!!measure.a && beat === 2);
       resetBtn.hidden = !show;
-      resetBtn.textContent = focused ? 'Zpět na celý prostor' : 'Smazat měření';
+      resetBtn.textContent = focused ? 'Zpět na celý byt' : 'Smazat měření';
     }
-    stage.dataset.mode = ['intro', 'explore', 'measure', 'spots'][beat];
+    stage.dataset.mode = ['plan', 'explore', 'measure', 'spots'][beat];
   }
 
   function readScroll() {
@@ -365,13 +384,13 @@ function init() {
   }
   function roomAt(e) {
     pointerNdc(e);
-    const hits = ray.intersectObjects(floorMeshes, false);
+    const hits = ray.intersectObjects(pickMeshes, false);
     return hits.length ? hits[0].object.userData.room : null;
   }
   function groundAt(e) {
     pointerNdc(e);
     if (!ray.ray.intersectPlane(ground, hit)) return null;
-    if (hit.x < 0.05 || hit.x > L - 0.05 || hit.z < 0.05 || hit.z > W - 0.05) return null;
+    if (hit.x < 0.2 || hit.x > 9.65 || hit.z < 0.2 || hit.z > 9.15) return null;
     return [hit.x, hit.z];
   }
   function setHover(room) {
@@ -463,7 +482,7 @@ function init() {
   canvas.addEventListener('pointerleave', () => { if (!drag) setHover(null); });
 
   resetBtn?.addEventListener('click', () => { if (focused) setFocus(null); else clearMeasure(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeSpots(); setFocus(null); } });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeSpots(); if (!autoFocus) setFocus(null); } });
 
   dots.forEach((d, i) => d.addEventListener('click', () => {
     const r = stage.getBoundingClientRect();
@@ -473,7 +492,6 @@ function init() {
 
   // ---- vykreslení ----
   const v = new THREE.Vector3();
-  const tmpColor = new THREE.Color();
   function frame(now) {
     requestAnimationFrame(frame);
     if (!visible) return;
@@ -486,44 +504,42 @@ function init() {
       const d = t[k] - cur[k];
       if (Math.abs(d) > 0.0005) { cur[k] += d * ease; moving = true; } else cur[k] = t[k];
     }
-    // zvýraznění místností
     for (const room of ROOMS) {
-      const want = room === focused ? 1 : room === hovered ? 0.7 : 0;
+      const want = room === focused && !autoFocus ? 0.5 : room === hovered ? 0.4 : 0;
       if (Math.abs(want - room.glow) > 0.01) { room.glow += (want - room.glow) * Math.min(1, ease * 2); moving = true; } else room.glow = want;
-      room.mat.color.copy(tmpColor.copy(room.base).lerp(hoverColor, room.glow));
+      room.mat.opacity = room.glow;
     }
-    // jemné pohupování, když se s modelem nic neděje
     const idle = !reduceMotion && cur.rise > 0.9 && !drag && now - lastInteraction > 1800;
-    const sway = idle ? Math.sin(now / 2600) * deg(2.2) : 0;
+    const sway = idle ? Math.sin(now / 2600) * deg(2) : 0;
     if (idle) moving = true;
     if (!moving && !needsFrame) return;
     needsFrame = false;
 
-    const h = Math.max(0.012, cur.rise);
+    const h = Math.max(0.004, cur.rise);
     walls.scale.y = h;
     caps.position.y = WALL_H * h + 0.02;
-    furniture.scale.y = Math.max(0.004, smooth(0.25, 1, cur.rise));
-    blobMat.opacity = cur.rise;
-    if (Math.abs(cur.rise - shadowRise) > 0.002) { shadowRise = cur.rise; renderer.shadowMap.needsUpdate = true; }
+    things.scale.y = Math.max(0.002, smooth(0.2, 1, cur.rise));
+    shadowMat.opacity = 0.22 * cur.rise;
     dimMat.opacity = cur.dim;
+    if (Math.abs(cur.rise - shadowRise) > 0.002) { shadowRise = cur.rise; renderer.shadowMap.needsUpdate = true; }
 
-    const pol = Math.min(deg(80), Math.max(0.02, cur.pol + user.pol * cur.rise));
+    const pol = Math.min(deg(80), Math.max(0.001, cur.pol + user.pol * cur.rise));
     const az = cur.az + (user.az + sway) * cur.rise;
     const rad = baseRadius * cur.rad;
     camera.position.set(cur.tx + rad * Math.sin(pol) * Math.sin(az), rad * Math.cos(pol), cur.tz + rad * Math.sin(pol) * Math.cos(az));
     camera.lookAt(cur.tx, 0, cur.tz);
     renderer.render(scene, camera);
 
-    const small = width < 520;
-    const roomAlpha = (1 - Math.max(cur.spot, cur.dim * 0.6, cur.focus)) * (small ? 1 - cur.rise : 1) * (measure.a ? 0.25 : 1);
+    // první snímek s texturou: 3D půdorys nahradí statický obrázek
+    if (!ready && textureReady) { ready = true; stage.classList.add('is-ready'); }
+
     for (const tag of tags) {
       v.copy(tag.pos);
       if (tag.group === 'spot') v.y *= cur.rise;
       v.project(camera);
       const x = (v.x * 0.5 + 0.5) * width, y = (-v.y * 0.5 + 0.5) * height;
       let a = 0;
-      if (tag.group === 'room') a = roomAlpha;
-      else if (tag.group === 'dim') a = cur.dim;
+      if (tag.group === 'dim') a = cur.dim;
       else if (tag.group === 'spot') a = cur.spot;
       else if (tag.group === 'measure') a = measure.a && measure.b ? 1 : 0;
       else if (tag.group === 'focus') a = cur.focus;
@@ -534,6 +550,7 @@ function init() {
   }
 
   new ResizeObserver(resize).observe(view);
+  planImg?.addEventListener('load', resize);
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; needsFrame = true; }).observe(stage);
   window.addEventListener('scroll', readScroll, { passive: true });
   resize();
@@ -545,5 +562,8 @@ function init() {
   // pro testy
   window.__showspaceModel = {
     project(x, z) { const r = canvas.getBoundingClientRect(); const q = new THREE.Vector3(x, 0, z).project(camera); return [r.left + (q.x * 0.5 + 0.5) * r.width, r.top + (-q.y * 0.5 + 0.5) * r.height]; },
-    get beat() { return beat; }, get focused() { return focused?.name || null; }, get measured() { return measure.fixed ? measureTag.el.textContent : null; } };
+    get beat() { return beat; },
+    get focused() { return focused?.name || null; },
+    get measured() { return measure.fixed ? measureTag.el.textContent : null; },
+  };
 }

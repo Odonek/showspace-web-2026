@@ -349,3 +349,38 @@ if (callbar && 'IntersectionObserver' in window) {
   });
   hideNear.forEach((el) => io.observe(el));
 }
+
+// ---------------------------------------------------------------------
+// Ceník: přepínač SCAN / SKY mění ceny ve všech balíčcích
+// ---------------------------------------------------------------------
+document.querySelectorAll('[data-pricing]').forEach((box) => {
+  const opts = [...box.querySelectorAll('[data-scope]')];
+  const prices = [...box.querySelectorAll('[data-price]')];
+  const links = [...box.querySelectorAll('[data-prefill]')];
+  links.forEach((l) => { l.dataset.base = l.dataset.prefill; });
+  const choose = (scope, focus = false) => {
+    opts.forEach((o) => {
+      const on = o.dataset.scope === scope;
+      o.setAttribute('aria-checked', String(on));
+      o.tabIndex = on ? 0 : -1;
+      if (on && focus) o.focus();
+    });
+    prices.forEach((p) => {
+      p.textContent = p.dataset[scope];
+      p.classList.remove('is-changing');
+      void p.offsetWidth;
+      p.classList.add('is-changing');
+    });
+    links.forEach((l) => { l.dataset.prefill = `${l.dataset.base}, ${scope.toUpperCase()}`; });
+  };
+  opts.forEach((o, i) => {
+    o.addEventListener('click', () => choose(o.dataset.scope));
+    o.addEventListener('keydown', (e) => {
+      if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+      e.preventDefault();
+      choose(opts[(i + 1) % opts.length].dataset.scope, true);
+    });
+  });
+  links.forEach((l) => { l.dataset.prefill = `${l.dataset.base}, SCAN`; });
+  opts.forEach((o) => { o.tabIndex = o.getAttribute('aria-checked') === 'true' ? 0 : -1; });
+});
