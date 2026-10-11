@@ -21,8 +21,8 @@ const resetBtn = stage?.querySelector('.stage__reset');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const C = {
-  wall: 0xf3f0e6, cap: 0x1c232e, floor: 0xfdebd9, bath: 0xdfe3ee, deck: 0xc9a27a, floorHover: 0xeae151,
-  slate: 0x415a77, white: 0xffffff, wood: 0xc99b6b, linen: 0xe9e4d2, ink: 0x18212f, sofa: 0xb9b2a3, glass: 0xbfd3e6,
+  wall: 0xf7f7f4, cap: 0x141c2b, floor: 0xf9dcbd, bath: 0xc9d6ea, deck: 0xc58a55, floorHover: 0xeae151,
+  slate: 0x415a77, white: 0xffffff, wood: 0xc99b6b, linen: 0xe9e4d2, ink: 0x18212f, sofa: 0xe6c93f, glass: 0xa9c6e3,
 };
 
 // vnitřní rozměr: 11,47 × 2,145 m
@@ -105,6 +105,7 @@ function init() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate = false; // stíny se přepočítají jen při změně výšky stěn
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 200);
@@ -274,7 +275,7 @@ function init() {
   const cur = { rise: reduceMotion ? 1 : 0, az: 0, pol: 0.02, rad: 1, dim: 0, spot: 0, tx: CENTER.x, tz: CENTER.z, focus: 0 };
   const user = { az: 0, pol: 0 };
   let focused = null, hovered = null;
-  let visible = true, needsFrame = true, lastInteraction = 0;
+  let visible = true, needsFrame = true, lastInteraction = 0, lastTime = 0, shadowRise = -1;
 
   const clamp01 = (v) => Math.min(1, Math.max(0, v));
   const smooth = (a, b, v) => { const t = clamp01((v - a) / (b - a)); return t * t * (3 - 2 * t); };
@@ -290,8 +291,8 @@ function init() {
     const t = {
       rise,
       pol: mix(mix(0.02, deg(50), rise), deg(40), s2) + s3 * deg(10),
-      az: mix(mix(0, deg(-24), rise), deg(12), s2) + s3 * deg(14),
-      rad: mix(1, (mix(1.03, 1.0, s2) - s3 * 0.03) * tiltRoom, rise),
+      az: mix(mix(0, deg(-32), rise), deg(14), s2) + s3 * deg(12),
+      rad: mix(1, (mix(0.96, 1.04, s2) + s3 * 0.03) * tiltRoom, rise),
       dim: s2 * (1 - smooth(0.72, 0.78, p)) * (measure.a ? 0 : 1),
       spot: s3,
       tx: CENTER.x,
@@ -315,7 +316,7 @@ function init() {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     const t = Math.tan(deg(15));
-    baseRadius = Math.max(6.4 / (2 * t), 13.4 / (2 * t * camera.aspect));
+    baseRadius = Math.max(6.2 / (2 * t), 13.5 / (2 * t * camera.aspect));
     needsFrame = true;
   }
 
@@ -476,16 +477,19 @@ function init() {
   function frame(now) {
     requestAnimationFrame(frame);
     if (!visible) return;
+    const dt = Math.min(0.05, (now - lastTime) / 1000 || 0.016);
+    lastTime = now;
+    const ease = reduceMotion ? 1 : 1 - Math.exp(-dt * 7); // stejně plynulé na 60 i 120 Hz
     const t = targets(progress);
     let moving = false;
     for (const k of Object.keys(t)) {
       const d = t[k] - cur[k];
-      if (Math.abs(d) > 0.0005) { cur[k] += d * (reduceMotion ? 1 : 0.09); moving = true; } else cur[k] = t[k];
+      if (Math.abs(d) > 0.0005) { cur[k] += d * ease; moving = true; } else cur[k] = t[k];
     }
     // zvýraznění místností
     for (const room of ROOMS) {
       const want = room === focused ? 1 : room === hovered ? 0.7 : 0;
-      if (Math.abs(want - room.glow) > 0.01) { room.glow += (want - room.glow) * 0.18; moving = true; } else room.glow = want;
+      if (Math.abs(want - room.glow) > 0.01) { room.glow += (want - room.glow) * Math.min(1, ease * 2); moving = true; } else room.glow = want;
       room.mat.color.copy(tmpColor.copy(room.base).lerp(hoverColor, room.glow));
     }
     // jemné pohupování, když se s modelem nic neděje
@@ -500,6 +504,7 @@ function init() {
     caps.position.y = WALL_H * h + 0.02;
     furniture.scale.y = Math.max(0.004, smooth(0.25, 1, cur.rise));
     blobMat.opacity = cur.rise;
+    if (Math.abs(cur.rise - shadowRise) > 0.002) { shadowRise = cur.rise; renderer.shadowMap.needsUpdate = true; }
     dimMat.opacity = cur.dim;
 
     const pol = Math.min(deg(80), Math.max(0.02, cur.pol + user.pol * cur.rise));

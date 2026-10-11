@@ -101,6 +101,7 @@ if ('IntersectionObserver' in window && !calm) {
       // odkryj i prvky, které uživatel přeskočil (skok na kotvu, rychlý scroll)
       if (!e.isIntersecting && e.boundingClientRect.top > 0) return;
       e.target.classList.add('is-in');
+      setTimeout(() => e.target.classList.add('is-done'), 1200);
       io.unobserve(e.target);
     });
   }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
@@ -111,14 +112,11 @@ if ('IntersectionObserver' in window && !calm) {
 
 // Průběh čtení + stín hlavičky
 const headerEl = document.querySelector('.site-header');
-const bar = document.querySelector('.read-progress');
 let ticking = false;
 const onScroll = () => {
   if (ticking) return;
   ticking = true;
   requestAnimationFrame(() => {
-    const max = document.documentElement.scrollHeight - window.innerHeight;
-    if (bar) bar.style.setProperty('--read', max > 0 ? (window.scrollY / max).toFixed(4) : '0');
     headerEl?.classList.toggle('is-scrolled', window.scrollY > 8);
     ticking = false;
   });
