@@ -14,10 +14,12 @@
 <meta property="og:image" content="assets/img/byt-svitavy.webp">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preload" href="assets/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add('js')</script>
 <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
 <header class="site-header">
+  <div class="read-progress" aria-hidden="true"></div>
   <div class="wrap">
     <a class="brand" href="index.html" aria-label="ShowSpace – úvodní stránka"><img src="assets/img/logo.png" alt="ShowSpace" width="211" height="34"></a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
@@ -123,6 +125,20 @@
       <li>Video prohlídka s AI komentářem, sestavená z naskenovaných dat</li>
       <li>Umístění do Google Street View (u provozoven v ceně)</li>
     </ul>
+  </div>
+</section>
+
+<section class="section section--mist" id="otazky">
+  <div class="wrap faq-wrap">
+    <div class="section__head"><h2>Časté otázky</h2><p class="lead">Nenašli jste odpověď? <a class="textlink" href="#kontakt">Napište nám</a>.</p></div>
+    <div class="faq">
+      <details><summary>Za jak dlouho prohlídku dostanu?</summary><p>Do týdne od skenování. Pošleme vám odkaz na prohlídku, půdorys a fotografie.</p></details>
+      <details><summary>Platím za prohlídku něco měsíčně?</summary><p>Ne. Platíte jednou za zakázku, hosting prohlídky je bez měsíčního poplatku.</p></details>
+      <details><summary>Jak prohlídku dostanu do inzerátu?</summary><p>Dostanete odkaz, který vložíte do inzerátu, na web kanceláře nebo ho pošlete zájemci zprávou. Nic se neinstaluje, otevře se v mobilu i na počítači.</p></details>
+      <details><summary>Jak přesný je půdorys?</summary><p>Půdorys vzniká z LiDARu s přesností 98 %. Vzdálenosti si navíc každý změří přímo v prohlídce.</p></details>
+      <details><summary>Umíte z prohlídky udělat i video?</summary><p>Ano, na přání. Sestavíme ho z naskenovaných dat a doplníme AI komentářem, takže se nic netočí znovu.</p></details>
+      <details><summary>Dá se prohlídka umístit do Google Street View?</summary><p>Ano. U provozoven je umístění do Google Street View v ceně.</p></details>
+    </div>
   </div>
 </section>
 

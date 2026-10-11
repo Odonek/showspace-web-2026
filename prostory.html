@@ -14,10 +14,12 @@
 <meta property="og:image" content="assets/img/byt-svitavy.webp">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preload" href="assets/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add('js')</script>
 <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
 <header class="site-header">
+  <div class="read-progress" aria-hidden="true"></div>
   <div class="wrap">
     <a class="brand" href="index.html" aria-label="ShowSpace – úvodní stránka"><img src="assets/img/logo.png" alt="ShowSpace" width="211" height="34"></a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
@@ -32,14 +34,17 @@
 </header>
 <main>
 
-<section class="page-hero">
+<section class="page-hero page-hero--split">
   <div class="wrap">
-    <h1>Host si prostor projde ještě před rezervací</h1>
-    <p class="lead">Hotel, fitness, wellness nebo kavárnu naskenujeme a prohlídku umístíme na váš web i do Google Street View.</p>
-    <div class="btn-row">
-      <a class="btn" href="#kontakt">Poptat prohlídku</a>
-      <a class="btn btn--ghost" href="#reference">Hotové prohlídky</a>
+    <div class="page-hero__copy">
+      <h1>Host si prostor projde ještě před rezervací</h1>
+      <p class="lead">Hotel, fitness, wellness nebo kavárnu naskenujeme a prohlídku umístíme na váš web i do Google Street View.</p>
+      <div class="btn-row">
+        <a class="btn" href="#kontakt">Poptat prohlídku</a>
+        <a class="btn btn--ghost" href="#reference">Hotové prohlídky</a>
+      </div>
     </div>
+    <div class="finder page-hero__photo" data-tilt><img src="assets/img/forea-wellness.webp" srcset="assets/img/forea-wellness-800.webp 800w, assets/img/forea-wellness.webp 1600w" sizes="(max-width: 860px) 100vw, 50vw" width="1600" height="1200" alt="Wellness Forea v Lanškrouně se saunami"></div>
   </div>
 </section>
 
@@ -190,7 +195,7 @@
   </div>
 </section>
 
-<section class="section">
+<section class="section" id="v-cene">
   <div class="wrap">
     <div class="section__head">
       <h2>Co je v ceně</h2>

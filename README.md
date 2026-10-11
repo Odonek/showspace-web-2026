@@ -17,7 +17,7 @@ Zkušební verze nového webu showspace.cz. Živý web zůstává v repozitáři
 ## Složky
 
 - `assets/css/styles.css` – veškeré styly, barvy jsou nahoře v `:root`
-- `assets/js/site.js` – menu, načtení prohlídky po kliknutí, filtr referencí, předvyplnění formuláře
+- `assets/js/site.js` – menu, načtení prohlídky po kliknutí, filtr referencí, předvyplnění formuláře, odkrývání při scrollu, náklon za kurzorem, otázky
 - `assets/js/model.js` – 3D model bytu (dispozice, nábytek, kóty a informační body jsou nahoře v souboru)
 - `assets/vendor/` – knihovna three.js (MIT)
 - `assets/fonts/` – písmo Archivo (OFL), hostované lokálně
@@ -28,5 +28,7 @@ Zkušební verze nového webu showspace.cz. Živý web zůstává v repozitáři
 - [ ] Doplnit ceny v `cenik.html` a `index.html` (hledat `X XXX Kč`) a potvrdit rozdělení balíčků
 - [ ] Smazat poznámku „Návrh k doplnění“ v `cenik.html`
 - [ ] Smazat `<meta name="robots" content="noindex, nofollow">` ve všech čtyřech stránkách
-- [ ] Projít texty a příklady u informačních bodů v 3D modelu
+- [ ] Projít texty a příklady u informačních bodů v 3D modelu a odpovědi v sekci otázek
+- [ ] Doplnit skutečné reference klientů (citace), až budou k dispozici
+- [ ] Změřit rychlost úvodní stránky na živé adrese (PageSpeed Insights)
 - [ ] Přidat soubor `CNAME` s obsahem `showspace.cz` a přepnout doménu v nastavení GitHub Pages

@@ -14,10 +14,12 @@
 <meta property="og:image" content="assets/img/byt-svitavy.webp">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preload" href="assets/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
+<script>document.documentElement.classList.add('js')</script>
 <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
 <header class="site-header">
+  <div class="read-progress" aria-hidden="true"></div>
   <div class="wrap">
     <a class="brand" href="index.html" aria-label="ShowSpace – úvodní stránka"><img src="assets/img/logo.png" alt="ShowSpace" width="211" height="34"></a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
@@ -75,10 +77,18 @@
   </div>
 </section>
 
+<section class="clients" aria-label="Prostory, které jsme skenovali">
+  <p class="clients__label">Skenovali jsme</p>
+  <div class="clients__track">
+    <ul><li>Forea Lanškroun</li><li>Golden Fitness Česká Třebová</li><li>Krytý plavecký bazén Svitavy</li><li>Aparthotel Svitavy</li><li>Golden Fitness Litomyšl</li><li>Domov pro seniory Vendolí</li><li>Houseboat Praha</li></ul>
+    <ul aria-hidden="true"><li>Forea Lanškroun</li><li>Golden Fitness Česká Třebová</li><li>Krytý plavecký bazén Svitavy</li><li>Aparthotel Svitavy</li><li>Golden Fitness Litomyšl</li><li>Domov pro seniory Vendolí</li><li>Houseboat Praha</li></ul>
+  </div>
+</section>
+
 <section class="section" id="ukazka">
   <div class="wrap split">
     <div>
-      <div class="finder">
+      <div class="finder" data-tilt>
         <div class="tour" data-tour="https://my.giraffe360.com/p/d85pdb1" data-tour-title="Virtuální prohlídka bytu 3+1 ve Svitavách">
           <img src="assets/img/byt-svitavy.webp" srcset="assets/img/byt-svitavy-800.webp 800w, assets/img/byt-svitavy.webp 1600w" sizes="(max-width: 860px) 100vw, 50vw" width="1600" height="1200" alt="Pokoj bytu 3+1 ve Svitavách s výhledem do zahrady" loading="lazy" decoding="async">
           <div class="tour__start"><button class="btn btn--light" type="button" data-tour-start>Spustit prohlídku bytu</button></div>
@@ -137,7 +147,7 @@
   </div>
 </section>
 
-<section class="section section--mist" id="postup">
+<section class="section" id="postup">
   <div class="wrap">
     <div class="section__head"><h2>Jak to probíhá</h2></div>
     <div class="steps">
@@ -197,6 +207,20 @@
       <a href="prostory.html?typ=gastro"><img src="assets/img/forea-cafe.webp" srcset="assets/img/forea-cafe-800.webp 800w, assets/img/forea-cafe.webp 1600w" sizes="(max-width: 700px) 50vw, 25vw" width="1600" height="1200" alt="Kavárna a bistro Forea v Lanškrouně" loading="lazy" decoding="async"><span>Gastro</span></a>
     </div>
     <p style="margin-top:1.75rem"><a class="btn btn--ghost" href="prostory.html">Všechny hotové prohlídky</a></p>
+  </div>
+</section>
+
+<section class="section section--mist" id="otazky">
+  <div class="wrap faq-wrap">
+    <div class="section__head"><h2>Na co se makléři ptají</h2><p class="lead">Nenašli jste odpověď? <a class="textlink" href="#kontakt">Napište nám</a>.</p></div>
+    <div class="faq">
+      <details><summary>Za jak dlouho prohlídku dostanu?</summary><p>Do týdne od skenování. Pošleme vám odkaz na prohlídku, půdorys a fotografie.</p></details>
+      <details><summary>Platím za prohlídku něco měsíčně?</summary><p>Ne. Platíte jednou za zakázku, hosting prohlídky je bez měsíčního poplatku.</p></details>
+      <details><summary>Jak prohlídku dostanu do inzerátu?</summary><p>Dostanete odkaz, který vložíte do inzerátu, na web kanceláře nebo ho pošlete zájemci zprávou. Nic se neinstaluje, otevře se v mobilu i na počítači.</p></details>
+      <details><summary>Jak přesný je půdorys?</summary><p>Půdorys vzniká z LiDARu s přesností 98 %. Vzdálenosti si navíc každý změří přímo v prohlídce.</p></details>
+      <details><summary>Umíte z prohlídky udělat i video?</summary><p>Ano, na přání. Sestavíme ho z naskenovaných dat a doplníme AI komentářem, takže se nic netočí znovu.</p></details>
+      <details><summary>Dá se prohlídka umístit do Google Street View?</summary><p>Ano. U provozoven je umístění do Google Street View v ceně.</p></details>
+    </div>
   </div>
 </section>
 
@@ -264,6 +288,10 @@
   </div>
 </footer>
 <script type="module" src="assets/js/site.js"></script>
-<script type="module" src="assets/js/model.js"></script>
+<script type="module">
+  // 3D model se načte až po vykreslení stránky, aby nezdržoval první zobrazení
+  const load3d = () => import("./assets/js/model.js");
+  if ("requestIdleCallback" in window) requestIdleCallback(load3d, { timeout: 1500 }); else setTimeout(load3d, 300);
+</script>
 </body>
 </html>

@@ -92,7 +92,7 @@ function init() {
   if (reduceMotion) stage.classList.add('is-static');
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -104,7 +104,7 @@ function init() {
   sun.position.set(-2, 14, -5);
   sun.target.position.copy(CENTER);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.mapSize.set(1024, 1024);
   Object.assign(sun.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 1, far: 40 });
   sun.shadow.bias = -0.0006;
   sun.shadow.radius = 5;
